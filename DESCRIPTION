@@ -1,0 +1,22 @@
+Package: GD
+Type: Package
+Title: Geographical Detectors
+Date: 2017-12-22
+Version: 1.0
+Authors@R: person("Yongze Song", email = "yongze.song@postgrad.curtin.edu.au",
+                  role = c("aut", "cre"))
+Maintainer: Yongze Song <yongze.song@postgrad.curtin.edu.au>
+Description: Geographical detectors for measuring spatial stratified heterogeneity,
+             as described in Jinfeng Wang (2010) <doi:10.1080/13658810802443457> and 
+             Jinfeng Wang (2016) <doi:10.1016/j.ecolind.2016.02.052>. Includes the
+             discretization of continuous data and four primary functions of 
+             geographical detectors.
+Imports: BAMMtools, ggplot2, stats, utils
+Depends: R (>= 3.4.0)
+License: GPL-2
+RoxygenNote: 6.0.1
+NeedsCompilation: no
+Packaged: 2018-01-03 15:50:19 UTC; zack
+Author: Yongze Song [aut, cre]
+Repository: CRAN
+Date/Publication: 2018-01-03 18:17:25 UTC

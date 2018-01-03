@@ -1,0 +1,11 @@
+disc            Convert continuous data to discretized data
+stra          	Convert discretized data to strata variables
+stra.2v	        Generate two category or discretized variables determined strata
+citv            Count data within intervals
+gd            	Calculate geographical detectors
+gd.interact     Calculate interaction detectors
+gd.riskmean     Calculate risk means within intervals
+gd.risk    	    Calculate risk detectors
+gd.riskmatrix   Convert risk detector results to risk matrix
+gd.eco          Calculate ecological detectors
+gd.ecomatrix    Convert ecological detector results to ecological matrix
