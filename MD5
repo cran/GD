@@ -1,8 +1,8 @@
-a426b6df73a12665e17914c69aa92c11 *DESCRIPTION
+48fb04b75720d2b29f2dcd695ed65a5d *DESCRIPTION
 4b4fea164f47230e188e52e831f8b93c *INDEX
 185a3e978dbdbfc8152ccfcfea04257f *NAMESPACE
 9e587710a4d5f81667305487f567757a *R/citv.R
-0fe4d9bda1f93c98264a3d7a31dc9adb *R/disc.R
+63fd127b26dde9663a812056c907fdb8 *R/disc.R
 0080639e7053d230d6bdda59a9b54061 *R/exampledata.R
 e8d161b3594ac37ca31c0e7b31752a53 *R/exampledata2.R
 5e542ff5b310cdc5ddb7e3865c62548c *R/gd.R
@@ -13,7 +13,7 @@ ab7cdeb29d5c4d3f34f3f4964babb09e *R/gd.ecomatrix.R
 8e9d30d1a283859cc9316e67d964de41 *R/gd.riskmatrix.R
 979202be2210a04c85b1424f923e0a93 *R/gd.riskmean.R
 8f72927ee68d439121b6f18365a68563 *R/stra.2v.R
-49e666e1b5c801040fa0e95ebfb6aebd *R/stra.R
+c59fc957fffe3144eb9b2a2a18aec424 *R/stra.R
 7452bafd9a54a788364c395c63b06821 *data/Roaddamage.RData
 63f9e65c048e705f808886d6d003b960 *data/StraRoad.RData
 b0b68b3fd55dae2734e1eebbe868f337 *man/Roaddamage.Rd

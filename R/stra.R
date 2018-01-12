@@ -14,7 +14,7 @@ stra <- function(cont.var, itv){
   n <- length(itv)
   disc.var <- cont.var
   for (u in 1:n){
-    disc.var[which(cont.var>=itv[u] & cont.var<=itv[u+1])] <- u
+    disc.var[which(cont.var>=(itv[u]-0.0000001) & cont.var<=(itv[u+1]+0.0000001))] <- u
   }
   return(disc.var)
 }

@@ -34,11 +34,27 @@ disc <- function(var, n, method = "quantile", ManualItv){
     k <- (max(var)/min(var))^(1/n)
     itv <- c(min(var),(min(var)*(k^seq(n))))
   } else if (method == "sd") {
-    svar <- scale(var) # standardization: (x-mean)/sd
-    pars <- c(attr(svar, "scaled:center"), attr(svar, "scaled:scale"))
-    names(pars) <- c("center", "scale")
-    sitv <- pretty(x = svar, n = n)
-    itv <- c((sitv * pars[2]) + pars[1])
+    seqa <- seq(2000, 2, -2)
+    itv <- c()
+    m <- n
+    while (length(itv) < n + 1){
+      m <- m + 1
+      seqb <- (m-1) - seqa
+      seqb <- seqb[which(seqb >= 0)]
+      if (m <= 10) {
+        itvb1 <- mean(var) - seqb/2 * sd(var)
+        itvb2 <- mean(var) + seqb/2 * sd(var)
+      } else {
+        itvb1 <- mean(var) - seqb/4 * sd(var)
+        itvb2 <- mean(var) + seqb/4 * sd(var)
+      }
+      itvb1 <- rev(itvb1)
+      itvb1 <- itvb1[which(itvb1 > min(var))]
+      itvb2 <- itvb2[which(itvb2 < max(var))]
+      itvb <- c(itvb1, itvb2)
+      itvb <- itvb[!duplicated(itvb)]
+      itv <- c(min(var),itvb,max(var))
+    }
   } else if (method == "manual") {
     if (!is.null(ManualItv)){
       itv <- ManualItv
