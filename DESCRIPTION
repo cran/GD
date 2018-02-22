@@ -1,8 +1,8 @@
 Package: GD
 Type: Package
 Title: Geographical Detectors
-Date: 2017-12-22
-Version: 1.1
+Date: 2018-02-22
+Version: 1.2
 Authors@R: person("Yongze Song", email = "yongze.song@postgrad.curtin.edu.au",
                   comment = c(ORCID = "0000-0003-3420-9622"),
                   role = c("aut", "cre"))
@@ -12,12 +12,12 @@ Description: Geographical detectors for measuring spatial stratified heterogenei
              Jinfeng Wang (2016) <doi:10.1016/j.ecolind.2016.02.052>. Includes the
              discretization of continuous data and four primary functions of 
              geographical detectors.
-Imports: BAMMtools, ggplot2, stats, utils
+Imports: stats, utils, BAMMtools, ggplot2, reshape2
 Depends: R (>= 3.4.0)
 License: GPL-2
 RoxygenNote: 6.0.1
 NeedsCompilation: no
-Packaged: 2018-01-12 14:26:51 UTC; zack
-Author: Yongze Song [aut, cre] (0000-0003-3420-9622)
+Packaged: 2018-02-22 13:53:35 UTC; zack
+Author: Yongze Song [aut, cre] (<https://orcid.org/0000-0003-3420-9622>)
 Repository: CRAN
-Date/Publication: 2018-01-12 14:35:19 UTC
+Date/Publication: 2018-02-22 14:04:40 UTC

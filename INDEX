@@ -2,6 +2,7 @@ disc            Convert continuous data to discretized data
 stra          	Convert discretized data to strata variables
 stra.2v	        Generate two category or discretized variables determined strata
 citv            Count data within intervals
+optidisc        Optimal discretization for continuous variables
 gd            	Calculate geographical detectors
 gd.interact     Calculate interaction detectors
 gd.riskmean     Calculate risk means within intervals
