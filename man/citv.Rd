@@ -2,18 +2,20 @@
 % Please edit documentation in R/citv.R
 \name{citv}
 \alias{citv}
-\title{Count data within intervals}
+\title{Count data within intervals for categorical or discretized variables}
 \usage{
-citv(vec)
+citv(strata_var)
 }
 \arguments{
-\item{vec}{A vector}
+\item{strata_var}{A vector of a strata variable}
 }
 \description{
-Count data within intervals
+Count data within intervals for categorical or discretized variables
 }
 \examples{
-citv(c("a","a","b","b","b"))
-data(StraRoad)
-citv(StraRoad$population)
+data(ndvi_40)
+ds1 <- disc(ndvi_40$Tempchange, 4)
+stv1 <- stra(ndvi_40$Tempchange, ds1$itv)
+citv(stv1)
+
 }

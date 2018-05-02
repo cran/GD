@@ -1,19 +1,30 @@
 #' Convert continuous data to discretized data
 #'
-#' @param var A numeric vector
-#' @param n A number
-#' @param method A character
-#' @param ManualItv A numeric vector
+#' @usage disc(var, n, method = "quantile", ManualItv)
+#' \\method{print}{disc}(result)
+#' \\method{plot}{disc}(result)
+#'
+#' @aliases disc print.disc plot.disc
+#'
+#' @param var A numeric vector of continuous variable
+#' @param n The numeber of intervals
+#' @param method A character of discretization method
+#' @param ManualItv A numeric vector of manual intervals
+#' @param result A list of \code{disc} result
 #'
 #' @importFrom stats na.omit quantile
 #' @importFrom ggplot2 ggplot aes geom_histogram theme_bw labs geom_vline
 #' @importFrom BAMMtools getJenksBreaks
 #'
 #' @examples
-#' disc(rnorm(100,0,2), 6, method = "quantile")
-#' disc(c(1:10,15:20,5:30,10:25), 5, method = "natural")
-#' data(Roaddamage)
-#' disc(Roaddamage$population, 6, method = "quantile")
+#' ## method is default (quantile); number of intervals is 4
+#' ds1 <- disc(ndvi_40$Tempchange, 4)
+#' # ds1
+#' ## method is equal; number of intervals is 4
+#' ds2 <- disc(ndvi_40$Tempchange, 4, method = "equal")
+#' ## method is manual; number of intervals is 4
+#' manualitv1 <- c(-0.5, 0, 1, 2, 4)
+#' ds3 <- disc(ndvi_40$Tempchange, 4, method = "manual", ManualItv = manualitv1)
 #'
 #' @export
 
@@ -31,8 +42,16 @@ disc <- function(var, n, method = "quantile", ManualItv){
   } else if (method == "quantile") {
     itv <- quantile(var, probs = seq(0, 1, length = n + 1))
   } else if (method == "geometric") {
-    k <- (max(var)/min(var))^(1/n)
-    itv <- c(min(var),(min(var)*(k^seq(n))))
+    exponent <- function(a, pow) (abs(a)^pow)*sign(a)
+    if (min(var) == 0){
+      var <- var + 1
+      k <- exponent(max(var)/min(var), 1/n)
+      itv <- min(var)*(k^c(seq(n+1)-1))
+      itv <- itv - 1
+    } else {
+      k <- exponent(max(var)/min(var), 1/n)
+      itv <- min(var)*(k^c(seq(n+1)-1))
+    }
   } else if (method == "sd") {
     seqa <- seq(2000, 2, -2)
     itv <- c()
@@ -41,7 +60,7 @@ disc <- function(var, n, method = "quantile", ManualItv){
       m <- m + 1
       seqb <- (m-1) - seqa
       seqb <- seqb[which(seqb >= 0)]
-      if (m <= 10) {
+      if (m <= 7) {
         itvb1 <- mean(var) - seqb/2 * sd(var)
         itvb2 <- mean(var) + seqb/2 * sd(var)
       } else {
@@ -64,20 +83,33 @@ disc <- function(var, n, method = "quantile", ManualItv){
   }
   c.itv <- c()
   for (u in 1:n){
-    c.itv[u] <- length(which(var>=itv[u] & var<=itv[u+1]))
+    if (u == 1){
+      c.itv[u] <- length(which(var>=itv[u] & var<=itv[u+1]))
+    } else {
+      c.itv[u] <- length(which(var>itv[u] & var<=itv[u+1]))
+    }
   }
+  disc.list <- list("var"=var, "itv"=itv, "c.itv"=c.itv)
+  ## define class
+  class(disc.list) <- "disc"
+  disc.list
+}
+
+print.disc <- function(result){
+  cat("Intervals:\n", result$itv)
+  cat("\n")
+  cat("Numbers of data within intervals:\n", result$c.itv)
+  invisible(result)
+}
+
+plot.disc <- function(result){
+  var <- result$var
   var <- as.data.frame(var)
-  gg1 <- ggplot(data=var, aes(var)) +
+  plotdisc <- ggplot(data=var, aes(var)) +
     geom_histogram(breaks=seq(min(var), max(var), by = ((max(var) - min(var))/30))) +
     theme_bw() +
     labs(x = "variable", y = "Frequency") +
-    geom_vline(xintercept=itv, color = "red")
-  return(list("itv"=itv, "c.itv"=c.itv, "plot.itv"=gg1))
+    geom_vline(xintercept=result$itv, color = "red")
+  return(plotdisc)
 }
-
-
-
-
-
-
 

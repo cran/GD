@@ -2,22 +2,22 @@
 % Please edit documentation in R/stra.R
 \name{stra}
 \alias{stra}
-\title{Convert discretized data to strata variables}
+\title{Convert continuous data to strata variables}
 \usage{
-stra(cont.var, itv)
+stra(continuous_var, itv)
 }
 \arguments{
-\item{cont.var}{A vector}
+\item{continuous_var}{A vector of a continuous variable}
 
-\item{itv}{A vector}
+\item{itv}{A vector of intervals}
 }
 \description{
-Convert discretized data to strata variables
+Convert continuous data to strata variables
 }
 \examples{
-stra(rnorm(100,0,2), c(-4.9,-1.3,-0.5,0.3,0.9,2.0,4.9))
-stra(c(1:10,15:20,5:30,10:25), c(1,7,13,18,23,30))
-data(Roaddamage)
-stra(Roaddamage$population, c(1.0,6.9,27.6,168.8,226.5,370.1,2489.8))
+# stra(rnorm(100,0,2), c(-4.9,-1.3,-0.5,0.3,0.9,2.0,4.9))
+# stra(c(1:10,15:20,5:30,10:25), c(1,7,13,18,23,30))
+ds1 <- disc(ndvi_40$Tempchange, 4)
+stv1 <- stra(ndvi_40$Tempchange, ds1$itv)
 
 }

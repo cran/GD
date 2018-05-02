@@ -2,26 +2,36 @@
 % Please edit documentation in R/disc.R
 \name{disc}
 \alias{disc}
+\alias{print.disc}
+\alias{plot.disc}
 \title{Convert continuous data to discretized data}
 \usage{
 disc(var, n, method = "quantile", ManualItv)
+\\method{print}{disc}(result)
+\\method{plot}{disc}(result)
 }
 \arguments{
-\item{var}{A numeric vector}
+\item{var}{A numeric vector of continuous variable}
 
-\item{n}{A number}
+\item{n}{The numeber of intervals}
 
-\item{method}{A character}
+\item{method}{A character of discretization method}
 
-\item{ManualItv}{A numeric vector}
+\item{ManualItv}{A numeric vector of manual intervals}
+
+\item{result}{A list of \code{disc} result}
 }
 \description{
 Convert continuous data to discretized data
 }
 \examples{
-disc(rnorm(100,0,2), 6, method = "quantile")
-disc(c(1:10,15:20,5:30,10:25), 5, method = "natural")
-data(Roaddamage)
-disc(Roaddamage$population, 6, method = "quantile")
+## method is default (quantile); number of intervals is 4
+ds1 <- disc(ndvi_40$Tempchange, 4)
+# ds1
+## method is equal; number of intervals is 4
+ds2 <- disc(ndvi_40$Tempchange, 4, method = "equal")
+## method is manual; number of intervals is 4
+manualitv1 <- c(-0.5, 0, 1, 2, 4)
+ds3 <- disc(ndvi_40$Tempchange, 4, method = "manual", ManualItv = manualitv1)
 
 }

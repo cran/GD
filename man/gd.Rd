@@ -2,22 +2,26 @@
 % Please edit documentation in R/gd.R
 \name{gd}
 \alias{gd}
+\alias{print.gd}
+\alias{plot.gd}
 \title{Calculate geographical detectors}
 \usage{
 gd(y, x)
+\\method{print}{gd}(result)
+\\method{plot}{gd}(result)
 }
 \arguments{
-\item{y}{A numeric vector}
+\item{y}{A numeric vector of response variable}
 
-\item{x}{A vector or a data.frame}
+\item{x}{A vector or a data.frame of explanatory variables}
+
+\item{result}{A list of factor detector results}
 }
 \description{
 Calculate geographical detectors
 }
 \examples{
-gd(c(1.2,1.5,2.1,3.3,3.6, 4.3,1.2,1.5,1.9,2.8),
-   c("d","d","d","c","c", "c","d","d","d","c"))
-data(StraRoad)
-gd(StraRoad$damage, StraRoad[,c(2:5)])
+g1 <- gd(ndvi_40$NDVIchange, ndvi_40$Climatezone)
+# g1
 
 }

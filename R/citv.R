@@ -1,24 +1,29 @@
-#' Count data within intervals
+#' Count data within intervals for categorical or discretized variables
 #'
-#' @param vec A vector
+#' @usage citv(strata_var)
+#'
+#' @param strata_var A vector of a strata variable
 #'
 #' @importFrom stats aggregate na.omit
 #'
 #' @examples
-#' citv(c("a","a","b","b","b"))
-#' data(StraRoad)
-#' citv(StraRoad$population)
+#' data(ndvi_40)
+#' ds1 <- disc(ndvi_40$Tempchange, 4)
+#' stv1 <- stra(ndvi_40$Tempchange, ds1$itv)
+#' citv(stv1)
+#'
 #' @export
-citv <- function(vec){
-  if (any(is.na(vec))) {
-    warning("vector has missing values, omitted in finding classes")
-    vec <- c(na.omit(vec))
+citv <- function(strata_var){
+  if (any(is.na(strata_var))) {
+    warning("strata_vartor has missing values, omitted in finding classes")
+    strata_var <- c(na.omit(strata_var))
   }
-  itv <- levels(factor(as.character(vec)))
+  itv <- levels(factor(as.character(strata_var)))
   nitv <- length(itv)
   citv <- as.data.frame(itv)
-  count <- aggregate(vec, list(vec), length)
+  count <- aggregate(strata_var, list(strata_var), length)
   citv$count <- count$x
   return(citv)
 }
+
 

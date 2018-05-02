@@ -2,9 +2,13 @@
 % Please edit documentation in R/optidisc.R
 \name{optidisc}
 \alias{optidisc}
-\title{Optimal discretization}
+\alias{print.optidisc}
+\alias{plot.optidisc}
+\title{Optimal discretization for continuous variables and visualization}
 \usage{
 optidisc(y = y, x = x, discmethod = discmethod, discitv = discitv)
+\\method{print}{optidisc}(result)
+\\method{plot}{optidisc}(result)
 }
 \arguments{
 \item{y}{A numeric vector of response variable}
@@ -14,16 +18,21 @@ optidisc(y = y, x = x, discmethod = discmethod, discitv = discitv)
 \item{discmethod}{A character vector of discretization methods}
 
 \item{discitv}{A numeric vector of numbers of intervals}
+
+\item{result}{A list of \code{optidisc} result}
 }
 \description{
-Optimal discretization
+Optimal discretization for continuous variables and visualization
 }
 \examples{
-data(Roaddamage)
-y <- Roaddamage$damage
-x <- Roaddamage$population
+## set optional discretization methods and numbers of intervals
+# optional methods: equal, natural, quantile, geometric, sd and manual
 discmethod <- c("equal","natural","quantile","geometric","sd")
 discitv <- c(3:7)
-optidisc(y, x, discmethod, discitv)
+## optimal discretization
+odc1 <- optidisc(ndvi_40$NDVIchange, ndvi_40$Tempchange, discmethod, discitv)
+# odc1
+# plot(odc1)
+# plot(odc1$discretization)
 
 }
