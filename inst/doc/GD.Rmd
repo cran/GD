@@ -1,0 +1,243 @@
+---
+title: "Geographical Detectors for Spatial Stratified Heterogeneity Analysis"
+author: "Yongze Song"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Geographical Detectors for Spatial Stratified Heterogeneity Analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Spatial stratified heterogeneity can be measured using geographical detectors ([Wang et al. 2010][2], [Wang et al. 2016][3]). 
+
+**GD** package consists of four parts:
+
+- the optimal discretization of continuous data; 
+
+- four primary functions of geographical detectors, including factor detector, risk detector, interaction detector and ecological detector;
+
+- comparison of size effects of spatial unit;
+
+- visualizations of results. 
+
+**GD** package includes three datasets:
+
+- `NDVI` (`ndvi_5`, `ndvi_10`, `ndvi_20`, `ndvi_30`, `ndvi_40` and `ndvi_50`): spatial data of vegetation changes `NDVI` with six sizes of grids, 5 km, 10 km, 20 km, 30 km, 40 km and 50 km;
+
+- `H1N1` (`h1n1_50`, `h1n1_100` and `h1n1_150`): spatial data of influenza A virus subtype H1N1 incidences with the spatial grid sizes of 50 km, 100 km and 150 km;
+
+- `road_GD`: line segment based spatial data of road conditions ([Song et al. 2018][4]).
+
+Further information can be found on the [manual][1] of **GD** package.
+
+More applications of geographical detectors are listed on [Geodetector website][5].
+
+## Discretization and optimal discretization
+
+Categorical variables are required for geographical detectors, so continuous variables should be discretized before modelling. **GD** package provides two options: discretization with given parameters, including discretization methods and numbers of intervals, and optimal discretization with a series of optional parameter combinations. Dataset `ndvi_40` is used as an example for explanation.
+
+```{r}
+library("GD")
+data("ndvi_40")
+head(ndvi_40)[1:3,]
+```
+
+### Discretization with given parameters: `disc`
+
+```{r, eval = FALSE}
+## discretization methods: equal, natural, quantile (default), geometric, sd and manual
+ds1 <- disc(ndvi_40$Tempchange, 4)
+ds1
+plot(ds1)
+```
+
+Further information can be found on the [manual][1] of **GD** package.
+
+### Optimal discretization: `optidisc`
+
+```{r, eval = FALSE}
+## set optional discretization methods and numbers of intervals
+discmethod <- c("equal","natural","quantile","geometric","sd")
+discitv <- c(3:7)
+## optimal discretization
+odc1 <- optidisc(continuous_variable = ndvi_40$Tempchange, 
+                 response_variable = ndvi_40$NDVIchange, 
+                 discmethod, discitv)
+odc1
+plot(odc1)
+```
+
+## Geographical detectors
+
+**GD** package provides two options for geographical detectors modelling:
+* four functions are performed step by step: `gd` for factor detector, `riskmean` and `gdrisk` for risk detector, `gdinteract` for interaction detector and `gdeco` for ecological detector;
+* optimal discretization and geographical detectors are performed using a one-step function `gdm`.
+
+### A one-step function: `gdm`
+
+```{r, eval = FALSE}
+## NDVI: ndvi_40
+## define elements orders of categorical variables
+cz <- c("Bwk","Bsk","Dwa","Dwb","Dwc") ## climate zone
+mp <- c("very low","low","medium","high","very high") ## mining production
+ndvi_40$Climatezone <- as.numeric(1:5)[match(ndvi_40$Climatezone, cz)]
+ndvi_40$Mining <- as.numeric(1:5)[match(ndvi_40$Mining, mp)]
+## set optional parameters of optimal discretization
+## optional methods: equal, natural, quantile, geometric, sd and manual
+discmethod <- c("equal","natural","quantile")
+discitv <- c(4:6)
+## "gdm" function
+ndvigdm <- gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
+               continuous_variable = c("Tempchange", "GDP"),
+               data = ndvi_40,
+               discmethod = discmethod, discitv = discitv)
+ndvigdm
+plot(ndvigdm)
+
+## H1N1: h1n1_100
+## set optional parameters of optimal discretization
+discmethod <- c("equal","natural","quantile","geometric","sd")
+discitv <- c(3:7)
+continuous_variable <- colnames(h1n1_100)[-c(1,11)]
+## "gdm" function
+h1n1gdm <- gdm(H1N1 ~ .,
+               continuous_variable = continuous_variable,
+               data = h1n1_100,
+               discmethod = discmethod, discitv = discitv)
+h1n1gdm
+plot(h1n1gdm)
+```
+
+### Factor detector: `gd`
+
+```{r, eval = FALSE}
+## a categorical explanatory variable
+g1 <- gd(NDVIchange ~ Climatezone, data = ndvi_40)
+g1
+
+## multiple categorical explanatory variables
+g2 <- gd(NDVIchange ~ ., data = ndvi_40[,1:3])
+g2
+plot(g2)
+
+## multiple variables inclusing continuous variables
+discmethod <- c("equal","natural","quantile","geometric","sd")
+discitv <- c(3:7)
+data_ndvi <- ndvi_40
+odc1 <- optidisc(continuous_variable = data_ndvi[,4:7], 
+                 response_variable = data_ndvi$NDVIchange, 
+                 discmethod, discitv)
+for (i in 4:7){
+  data_ndvi[,i] <- stra(data_ndvi[,i], odc1[[i-3]]$itv)
+}
+g3 <- gd(NDVIchange ~ ., data = data_ndvi)
+g3
+plot(g3)
+```
+
+### Risk detector: `riskmean` and `gdrisk`
+
+Risk mean values by variables:
+
+```{r, eval = FALSE}
+## categorical explanatory variables
+rm1 <- riskmean(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
+rm1
+plot(rm1)
+## multiple variables inclusing continuous variables
+rm3 <- riskmean(NDVIchange ~ ., data = data_ndvi)
+rm3
+plot(rm3)
+```
+
+Risk matrix:
+
+```{r, eval = FALSE}
+## categorical explanatory variables
+gr1 <- gdrisk(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
+gr1
+plot(gr1)
+## multiple variables inclusing continuous variables
+gd3 <- gdrisk(NDVIchange ~ ., data = data_ndvi)
+gd3
+plot(gd3)
+```
+
+### Interaction detector: `gdinteract`
+
+```{r, eval = FALSE}
+## categorical explanatory variables
+gi1 <- gdinteract(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
+gi1
+## multiple variables inclusing continuous variables
+gi3 <- gdinteract(NDVIchange ~ ., data = data_ndvi)
+gi3
+plot(gi3)
+```
+
+### Ecological detector: `gdeco`
+
+```{r, eval = FALSE}
+## categorical explanatory variables
+ge1 <- gdeco(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
+ge1
+## multiple variables inclusing continuous variables
+gd3 <- gdeco(NDVIchange ~ ., data = data_ndvi)
+gd3
+plot(gd3)
+```
+
+## Comparison of size effects of spatial unit
+
+```{r, eval = FALSE}
+ndvilist <- list(ndvi_10, ndvi_20, ndvi_30, ndvi_40, ndvi_50)
+su <- c(10,20,30,40,50) ## sizes of spatial units
+gdlist <- list() ## list of all geographical detectors results
+## set optional parameters of optimal discretization
+discmethod <- c("equal","natural","quantile","geometric","sd")
+discitv <- c(3:7)
+## "gdm" function (~ 40s)
+for (i in 1:length(su)){
+  ndvidata <- ndvilist[[i]]
+  gdlist[[i]] <- gdm(NDVIchange ~ .,
+                     continuous_variable = c("Tempchange", "Precipitation", "GDP", "Popdensity"),
+                     data = ndvidata,
+                     discmethod = discmethod, discitv = discitv)
+}
+## size effects of spatial units
+sesu(gdlist, su) 
+```
+
+## Reference
+
+Song Y (2018). GD: Geographical Detectors. R package, https://CRAN.R-project.org/package=GD.
+
+Wang J, Li X, Christakos G, Liao Y, Zhang T, Gu X and Zheng X (2010). “Geographical Detectors-Based Health Risk Assessment and its Application in the Neural Tube Defects Study of the Heshun Region, China.” International Journal of Geographical Information Science, 24(1), pp. 107-127. doi: [10.1080/13658810802443457][2].
+
+Wang J, Zhang T and Fu B (2016). “A measure of spatial stratified heterogeneity.” Ecological Indicators, 67, pp. 250-256. doi: [10.1016/j.ecolind.2016.02.052][3].
+
+Song Y, Wang X, Wright G, Thatcher D, Wu P and Felix P (2018). “Traffic Volume Prediction With Segment-Based Regression Kriging and its Implementation in Assessing the Impact of Heavy Vehicles.” IEEE Transactions on Intelligent Transportation Systems, pp. 1-12. doi: [10.1109/TITS.2018.2805817][4].
+
+Xu C and Wang J (2018). Geodetector Website. http://www.geodetector.org/.
+
+## Author and Contact
+
+Yongze Song
+
+Email: yongze.song@postgrad.curtin.edu.au
+
+Curtin University, Australia
+
+[1]: https://CRAN.R-project.org/package=GD
+[2]: https://www.tandfonline.com/doi/abs/10.1080/13658810802443457
+[3]: https://www.sciencedirect.com/science/article/pii/S1470160X16300735?via%3Dihub
+[4]: https://ieeexplore.ieee.org/document/8307463/
+[5]: http://www.geodetector.org/

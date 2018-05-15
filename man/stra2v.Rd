@@ -2,7 +2,7 @@
 % Please edit documentation in R/stra2v.R
 \name{stra2v}
 \alias{stra2v}
-\title{Generate two categorical or discretized variables determined strata variables}
+\title{Generates two categorical or discretized variables determined strata.}
 \usage{
 stra2v(categorical_var1, categorical_var2)
 }
@@ -12,9 +12,8 @@ stra2v(categorical_var1, categorical_var2)
 \item{categorical_var2}{A vector of a categorical variable}
 }
 \description{
-Generate two categorical or discretized variables determined strata variables
+Generates two categorical or discretized variables determined strata.
 }
 \examples{
 stv2 <- stra2v(ndvi_40$Climatezone, ndvi_40$Mining)
-
 }

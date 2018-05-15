@@ -1,36 +1,51 @@
-#' Calculate interaction detectors and visualization. The types of interactions
+#' Geographical detectors: interaction detector.
+#'
+#' @description Function for interaction detector calculation and visualization.
+#' The types of interactions
 #' include "Enhance, nonlinear", "Independent", "Enhance, bi-",
 #' "Weaken, uni-" and "Weaken, nonlinear".
 #'
-#' @usage gdinteract(y, x)
-#' \\method{print}{gdinteract}(result)
-#' \\method{plot}{gdinteract}(result)
+#' @usage gdinteract(formula, data = NULL)
+#' \method{print}{gdinteract}(x, ...)
+#' \method{plot}{gdinteract}(x, ...)
 #'
 #' @aliases gdinteract print.gdinteract plot.gdinteract
 #'
-#' @param y A numeric vector of response variable
-#' @param x A vector or a data.frame of explanatory variables
-#' @param result A list of interaction detector results
+#' @param formula A formula of response and explanatory variables
+#' @param data A data.frame includes response and explanatory variables
+#' @param x A list of interaction detector results
+#' @param ... Ignore
 #'
 #' @importFrom utils combn
 #' @importFrom ggplot2 ggplot aes geom_point scale_x_discrete scale_y_discrete
 #' theme_bw
 #'
-#' @examples
-#' gi1 <- gdinteract(ndvi_40$NDVIchange, ndvi_40[,2:3])
-#' # gi1
+#' @examples 
+#' gi1 <- gdinteract(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
+#' gi1
+#' \donttest{
+#' data <- ndvi_40[,1:3]
+#' gi2 <- gdinteract(NDVIchange ~ ., data = data)
+#' gi2
+#' }
 #'
 #' @export
-gdinteract <- function(y, x){
-  ####################
-  ## calculate gdinteract
-  ####################
-  if (typeof(x)=="list"){
-    ncolx <- ncol(x)
-    variable <- colnames(x)
+gdinteract <- function(formula, data = NULL){
+  formula <- as.formula(formula)
+  response <- data[,colnames(data) == as.character(formula[[2]])]
+  if (formula[[3]]=="."){
+    explanatory <- data[,-which(colnames(data) == as.character(formula[[2]]))]
   } else {
-    warning("x should be a dataframe with more than two variables")
+    explanatory <- data[,match(all.vars(formula)[-1], colnames(data))]
   }
+
+  if (typeof(explanatory)=="list"){
+    ncolx <- ncol(explanatory)
+    variable <- colnames(explanatory)
+  } else {
+    warning("multiple explanatory variables are required for interaction detector")
+  }
+
   result <- as.data.frame(t(combn(variable,2)))
   names(result) <- c("var1","var2")
   result$qv1 <- NA
@@ -38,12 +53,15 @@ gdinteract <- function(y, x){
   result$qv12 <- NA
   result$interaction <- NA
   for (u in 1:nrow(result)){
-    x1 <- x[,which(variable==result$var1[u])]
-    x2 <- x[,which(variable==result$var2[u])]
+    x1 <- explanatory[,which(variable==result$var1[u])]
+    x2 <- explanatory[,which(variable==result$var2[u])]
     x12 <- stra2v(x1,x2)
-    gd1 <- gd(y, x1)[[1]]
-    gd2 <- gd(y, x2)[[1]]
-    gd12 <- gd(y, x12)[[1]]
+    response <- as.data.frame(response)
+    xxx <- as.data.frame(cbind(x1, x2, x12))
+    gddata <- cbind(response, xxx)
+    gd1 <- gd(response ~ x1, data = gddata)[[1]]
+    gd2 <- gd(response ~ x2, data = gddata)[[1]]
+    gd12 <- gd(response ~ x12, data = gddata)[[1]]
     qv1 <- gd1$qv; qv2 <- gd2$qv; qv12 <- gd12$qv
     result$qv1[u] <- gd1$qv
     result$qv2[u] <- gd2$qv
@@ -66,8 +84,8 @@ gdinteract <- function(y, x){
   result
 }
 
-print.gdinteract <- function(result){
-  vec <- result[[1]]
+print.gdinteract <- function(x, ...){
+  vec <- x[[1]]
   intmatrix <- v2m(round(vec$qv12, digits=4), diag=FALSE)
   intmatrix <- as.data.frame(intmatrix)
   varname <- c(as.character(vec$var1),as.character(vec$var2))
@@ -76,12 +94,12 @@ print.gdinteract <- function(result){
   intmatrix <- cbind(variable, intmatrix)
   cat("Interaction detector:\n")
   print(intmatrix)
-  invisible(result)
+  invisible(x)
 }
 
-plot.gdinteract <- function(result){
+plot.gdinteract <- function(x, ...){
   var1 <- NA; var2 <- NA; qv12 <- NA
-  resultdata <- result[[1]]
+  resultdata <- x[[1]]
   if (nrow(resultdata)==1){
     cat("At least three explanatory variables are required for visulizing interaction detector.\n")
   } else {

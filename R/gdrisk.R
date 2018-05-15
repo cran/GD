@@ -1,14 +1,17 @@
-#' Calculate risk detectors and risk matrix and visualization
+#' Geographical detectors: risk detector.
 #'
-#' @usage gdrisk(y, x)
-#' \\method{print}{gdrisk}(result)
-#' \\method{plot}{gdrisk}(result)
+#' @description Function for risk detector calculation, risk matrix and visualization.
+#'
+#' @usage gdrisk(formula, data = NULL)
+#' \method{print}{gdrisk}(x, ...)
+#' \method{plot}{gdrisk}(x, ...)
 #'
 #' @aliases gdrisk print.gdrisk plot.gdrisk
 #'
-#' @param y A numeric vector of response variable
-#' @param x A vector or a data.frame of explanatory variables
-#' @param result A list of risk detector results
+#' @param formula A formula of response and explanatory variables
+#' @param data A data.frame includes response and explanatory variables
+#' @param x A list of risk detector results
+#' @param ... Ignore
 #'
 #' @importFrom stats t.test
 #' @importFrom utils combn
@@ -16,32 +19,43 @@
 #' theme_bw xlab ylab theme scale_y_discrete
 #' @importFrom grid grid.newpage pushViewport viewport grid.layout
 #'
-#' @examples
-#' gr1 <- gdrisk(ndvi_40$NDVIchange, ndvi_40[,2:3])
-#' # gr1
-#' # plot(gr1)
+#' @examples 
+#' gr1 <- gdrisk(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
+#' gr1
+#' plot(gr1)
+#' \donttest{
+#' data <- ndvi_40[,1:3]
+#' gr2 <- gdrisk(NDVIchange ~ ., data = data)
+#' gr2
+#' }
 #'
 #' @export
-gdrisk <- function(y,x){
-  ####################
-  ## calculate gdrisk
-  ####################
-  ny <- length(y)
-  # space for results
-  result <- list()
-  if (typeof(x)=="list"){
-    ncolx <- ncol(x)
-    variable <- colnames(x)
+gdrisk <- function(formula, data = NULL){
+  formula <- as.formula(formula)
+  response <- data[,colnames(data) == as.character(formula[[2]])]
+  if (formula[[3]]=="."){
+    explanatory <- data[,-which(colnames(data) == as.character(formula[[2]]))]
+  } else {
+    explanatory <- data[,match(all.vars(formula)[-1], colnames(data))]
+  }
+
+  if (typeof(explanatory)=="list"){
+    ncolx <- ncol(explanatory)
+    variable <- colnames(explanatory)
   } else {
     ncolx <- 1
     variable <- c("var")
   }
 
+  ny <- length(response)
+  # space for results
+  result <- list()
+
   for (i in 1:ncolx){
-    if (typeof(x)=="list"){
-      xi <- x[,i]
+    if (typeof(explanatory)=="list"){
+      xi <- explanatory[,i]
     } else {
-      xi <- x
+      xi <- explanatory
     }
     # t test by pairs
     itv <- levels(factor(xi))
@@ -50,8 +64,8 @@ gdrisk <- function(y,x){
     names(tv) <- c("itv1","itv2")
     tv$t <- NA; tv$df <- NA; tv$sig <- NA; tv$risk <- NA
     for (j in 1:nrow(tv)){
-      y1 <- y[which(xi==as.character(tv$itv1[j]))]
-      y2 <- y[which(xi==as.character(tv$itv2[j]))]
+      y1 <- response[which(xi==as.character(tv$itv1[j]))]
+      y2 <- response[which(xi==as.character(tv$itv2[j]))]
       if (length(y1) - length(y2) >= 0){
         lengthy <- length(y1)
       } else {
@@ -78,7 +92,7 @@ gdrisk <- function(y,x){
     }
     result[[i]] <- tv
   }
-  if (typeof(x)=="list"){
+  if (typeof(explanatory)=="list"){
     names(result) <- c(variable)
   } else {
     names(result) <- c("var")
@@ -89,12 +103,12 @@ gdrisk <- function(y,x){
   result
 }
 
-print.gdrisk <- function(result){
-  lr <- length(result)
-  names.result <- names(result)
+print.gdrisk <- function(x, ...){
+  lr <- length(x)
+  names.result <- names(x)
   plotriskmatrix <- list()
   for (i in 1:lr){
-    vec <- result[[i]]
+    vec <- x[[i]]
     riskmatrix <- v2m(vec$risk, diag=FALSE)
     itvname <- c(as.character(vec$itv1),as.character(vec$itv2))
     interval <- itvname[!duplicated(itvname)]
@@ -109,15 +123,15 @@ print.gdrisk <- function(result){
     print(riskmatrix)
     cat("\n")
   }
-  invisible(result)
+  invisible(x)
 }
 
-plot.gdrisk <- function(result){
-  lr <- length(result)
-  names.result <- names(result)
+plot.gdrisk <- function(x, ...){
+  lr <- length(x)
+  names.result <- names(x)
   plotriskmatrix <- list()
   for (i in 1:lr){
-    vec <- result[[i]]
+    vec <- x[[i]]
 
     riskmatrix <- v2m(vec$risk, diag=FALSE)
     itvname <- c(as.character(vec$itv1),as.character(vec$itv2))

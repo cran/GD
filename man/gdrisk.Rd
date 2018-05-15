@@ -4,25 +4,32 @@
 \alias{gdrisk}
 \alias{print.gdrisk}
 \alias{plot.gdrisk}
-\title{Calculate risk detectors and risk matrix and visualization}
+\title{Geographical detectors: risk detector.}
 \usage{
-gdrisk(y, x)
-\\method{print}{gdrisk}(result)
-\\method{plot}{gdrisk}(result)
+gdrisk(formula, data = NULL)
+\method{print}{gdrisk}(x, ...)
+\method{plot}{gdrisk}(x, ...)
 }
 \arguments{
-\item{y}{A numeric vector of response variable}
+\item{formula}{A formula of response and explanatory variables}
 
-\item{x}{A vector or a data.frame of explanatory variables}
+\item{data}{A data.frame includes response and explanatory variables}
 
-\item{result}{A list of risk detector results}
+\item{x}{A list of risk detector results}
+
+\item{...}{Ignore}
 }
 \description{
-Calculate risk detectors and risk matrix and visualization
+Function for risk detector calculation, risk matrix and visualization.
 }
 \examples{
-gr1 <- gdrisk(ndvi_40$NDVIchange, ndvi_40[,2:3])
-# gr1
-# plot(gr1)
+gr1 <- gdrisk(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
+gr1
+plot(gr1)
+\donttest{
+data <- ndvi_40[,1:3]
+gr2 <- gdrisk(NDVIchange ~ ., data = data)
+gr2
+}
 
 }

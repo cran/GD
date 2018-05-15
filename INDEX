@@ -1,13 +1,16 @@
-disc	Function for discretizing continuous data and obtaining the different outputs, including discretization intervals, numbers of values within intervals, and visualization of discretization.
+disc	Generates discretization parameters for continuous data.
 stra	Converts discretized data to strata variables.
 stra2v	Generates two categorical or discretized variables determined strata.
 citv	Counts data within intervals.
 optidisc	Optimal discretization for continuous variables and visualization.
-gd	Function for calculating power determinant using factor detector of geographical detectors and visualization.
-riskmean	Function for calculating risk means within intervals and visualization.
-gdrisk	Function for risk detector calculation, risk matrix and visualization.
-gdinteract	Function for interaction detector calculation and visualization.
-gdeco	Function for ecological detector calculation, ecological matrix and visulization.
-gdm	A one-step function for optimal discretization and geographical detectors for multiple variables and visualization.
-sesu	Function for comparison of size effects of spatial units in spatial heterogeneity analysis.
+gd	Geographical detectors: factor detector.
+riskmean	Geographical detectors: risk means in risk detector.
+gdrisk	Geographical detectors: risk detector.
+gdinteract	Geographical detectors: interaction detector.
+gdeco	Geographical detectors: ecological detector.
+gdm	Geographical detectors: a one-step function.
+sesu	Comparison of size effects of spatial units.
 v2m  Converts a vector to a lower triangular matrix.
+NDVI  Spatial datasets of vegetation index changes.
+H1N1  Spatial datasets of H1N1 flu incidences.
+road_GD  Spatial datasets of road damage conditions.

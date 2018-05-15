@@ -1,42 +1,59 @@
-#' Calculate risk means within intervals and visualization
+#' Geographical detectors: risk means in risk detector.
 #'
-#' @usage riskmean(y, x)
-#' \\method{print}{riskmean}(result)
-#' \\method{plot}{riskmean}(result)
+#' @description Function for calculating risk means within intervals and visualization.
+#'
+#' @usage riskmean(formula, data = NULL)
+#' \method{print}{riskmean}(x, ...)
+#' \method{plot}{riskmean}(x, ...)
 #'
 #' @aliases riskmean print.riskmean plot.riskmean
 #'
-#' @param y A numeric vector of response variable
-#' @param x A vector or a data.frame of explanatory variables
-#' @param result A data.frame of risk mean values
+#' @param formula a formula of response and explanatory variables
+#' @param data a data.frame includes response and explanatory variables
+#' @param x a list of risk mean values
+#' @param ... ignore
 #'
 #' @importFrom ggplot2 ggplot aes geom_bar coord_flip xlab ylab theme_bw scale_y_discrete
 #' @importFrom grid grid.newpage pushViewport viewport grid.layout
 #'
-#' @examples
-#' rm1 <- riskmean(ndvi_40$NDVIchange, ndvi_40[,2:3])
-#' # rm1
-#' # plot(rm1)
+#' @examples 
+#' rm1 <- riskmean(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
+#' rm1
+#' plot(rm1)
+#' \donttest{
+#' data <- ndvi_40[,1:3]
+#' rm2 <- riskmean(NDVIchange ~ ., data = data)
+#' rm2
+#' }
 #'
 #' @export
 #'
-riskmean <- function(y,x){
-  ny <- length(y)
+riskmean <- function(formula, data = NULL){
+  formula <- as.formula(formula)
+  response <- data[,colnames(data) == as.character(formula[[2]])]
+  if (formula[[3]]=="."){
+    explanatory <- data[,-which(colnames(data) == as.character(formula[[2]]))]
+  } else {
+    explanatory <- data[,match(all.vars(formula)[-1], colnames(data))]
+  }
+
+  ny <- length(response)
   # space for results
   result <- list()
-  if (typeof(x)=="list"){
-    ncolx <- ncol(x)
-    colnames.x <- colnames(x)
+
+  if (typeof(explanatory)=="list"){
+    ncolx <- ncol(explanatory)
+    colnames.x <- colnames(explanatory)
     for (i in 1:ncolx){
-      xi <- x[,i]
-      result1 <- aggregate(y, list(xi), mean) # mean by group
+      xi <- explanatory[,i]
+      result1 <- aggregate(response, list(xi), mean) # mean by group
       names(result1) <- c("Group","meanrisk")
       result[[i]] <- result1
     }
     names(result) <- c(colnames.x)
   } else {
     ncolx <- 1
-    result1 <- aggregate(y, list(x), mean) # mean by group
+    result1 <- aggregate(response, list(explanatory), mean) # mean by group
     names(result1) <- c("Group","meanrisk")
     result <- list("variable"=result1)
   }
@@ -46,26 +63,26 @@ riskmean <- function(y,x){
   result
 }
 
-print.riskmean <- function(result){
-  lr <- length(result)
-  names.result <- names(result)
+print.riskmean <- function(x, ...){
+  lr <- length(x)
+  names.result <- names(x)
     for (i in 1:lr){
-      resulti <- result[[i]]
+      resulti <- x[[i]]
       cat(names.result[i])
       cat("\n")
       print(resulti)
       cat("\n")
     }
-  invisible(result)
+  invisible(x)
 }
 
-plot.riskmean <- function(result){
+plot.riskmean <- function(x, ...){
   Group <- NA; meanrisk <- NA
-  lr <- length(result)
-  names.result <- names(result)
+  lr <- length(x)
+  names.result <- names(x)
   plotriskmean <- list()
   for (i in 1:lr){
-    vec <- result[[i]]
+    vec <- x[[i]]
     plotriskmean[[i]] <- ggplot(vec, aes(Group, meanrisk)) +
       geom_bar(stat = "identity") +
       geom_bar(data = subset(vec, meanrisk==min(meanrisk)), aes(Group, meanrisk),

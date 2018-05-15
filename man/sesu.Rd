@@ -2,7 +2,7 @@
 % Please edit documentation in R/sesu.R
 \name{sesu}
 \alias{sesu}
-\title{Comparison of size effects of spatial units}
+\title{Comparison of size effects of spatial units.}
 \usage{
 sesu(gdlist, su)
 }
@@ -12,23 +12,24 @@ sesu(gdlist, su)
 \item{su}{A vector of sizes of spatial units}
 }
 \description{
-Comparison of size effects of spatial units
+Function for comparison of size effects of spatial units
+in spatial heterogeneity analysis.
 }
 \examples{
-# ndvilist <- list(ndvi_30, ndvi_40, ndvi_50)
-# su <- c(30,40,50) ## sizes of spatial units
-# gdlist <- list() ## list of all geographical detectors results
-### set optional parameters of optimal discretization
-### optional methods: equal, natural, quantile, geometric, sd and manual
-# discmethod <- c("equal","natural","quantile")
-# discitv <- c(4:6)
-### "gdm" function
-# for (i in 1:length(su)){
-#  ndvidata <- ndvilist[[i]]
-#  gdlist[[i]] <- gdm(y = ndvidata[,1], xcategorical = ndvidata[,2:3],
-#                      xcontinuous = ndvidata[,c(4:7)],
-#                      discmethod = discmethod, discitv = discitv)
-# }
-# sesu(gdlist, su) ## size effects of spatial units
-
+ndvilist <- list(ndvi_30, ndvi_40, ndvi_50)
+su <- c(30,40,50) ## sizes of spatial units
+gdlist <- list() ## list of all geographical detectors results
+## set optional parameters of optimal discretization
+## optional methods: equal, natural, quantile, geometric, sd and manual
+discmethod <- c("equal","natural","quantile")
+discitv <- c(4:6)
+## "gdm" function
+for (i in 1:length(su)){
+  ndvidata <- ndvilist[[i]]
+  gdlist[[i]] <- gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
+                     continuous_variable = c("Tempchange", "GDP"),
+                     data = ndvidata,
+                     discmethod = discmethod, discitv = discitv)
+}
+sesu(gdlist, su) ## size effects of spatial units
 }

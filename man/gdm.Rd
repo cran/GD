@@ -4,27 +4,30 @@
 \alias{gdm}
 \alias{print.gdm}
 \alias{plot.gdm}
-\title{Optimal discretization and geographical detectors for multiple variables and visulization}
+\title{Geographical detectors: a one-step function.}
 \usage{
-gdm(y, xcategorical=NULL, xcontinuous=NULL, discmethod, discitv)
-\\method{print}{gdm}(result)
-\\method{plot}{gdm}(result)
+gdm(formula, continuous_variable = NULL, data = NULL, discmethod, discitv)
+\method{print}{gdm}(x, ...)
+\method{plot}{gdm}(x, ...)
 }
 \arguments{
-\item{y}{A numeric vector of response variable}
+\item{formula}{A formula of response and explanatory variables}
 
-\item{xcategorical}{A vector or a data.frame of categorical variables}
+\item{continuous_variable}{A vector of continuous variable names}
 
-\item{xcontinuous}{A vector or a data.frame of continuous variables}
+\item{data}{A data.frame includes response and explanatory variables}
 
 \item{discmethod}{A character vector of discretization methods}
 
 \item{discitv}{A numeric vector of numbers of intervals}
 
-\item{result}{A list of \code{gdm} result}
+\item{x}{A list of \code{gdm} result}
+
+\item{...}{Ignore}
 }
 \description{
-Optimal discretization and geographical detectors for multiple variables and visulization
+A one-step function for optimal discretization and geographical detectors for
+multiple variables and visualization.
 }
 \examples{
 ###############
@@ -40,22 +43,27 @@ ndvi_40$Mining <- as.numeric(1:5)[match(ndvi_40$Mining, mp)]
 discmethod <- c("equal","natural","quantile")
 discitv <- c(4:6)
 ## "gdm" function
-ndvigdm <- gdm(y = ndvi_40[,1], xcategorical = ndvi_40[,2:3],
-               xcontinuous = ndvi_40[,4:7],
+ndvigdm <- gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
+               continuous_variable = c("Tempchange", "GDP"),
+               data = ndvi_40,
                discmethod = discmethod, discitv = discitv)
-# ndvigdm
+ndvigdm
 # plot(ndvigdm)
+\dontrun{
 #############
 ## H1N1: h1n1_100
 #############
-### set optional parameters of optimal discretization
-# discmethod <- c("equal","natural","quantile")
-# discitv <- c(4:6)
-### "gdm" function
-# h1n1gdm <- gdm(y = h1n1_100[,1], xcategorical = h1n1_100[,11],
-#               xcontinuous = h1n1_100[,c(2:10)],
-#               discmethod = discmethod, discitv = discitv)
-# h1n1gdm
-# plot(h1n1gdm)
+## set optional parameters of optimal discretization
+discmethod <- c("equal","natural","quantile")
+discitv <- c(4:6)
+continuous_variable <- colnames(h1n1_100)[-c(1,11)]
+## "gdm" function
+h1n1gdm <- gdm(H1N1 ~ .,
+               continuous_variable = continuous_variable,
+               data = h1n1_100,
+               discmethod = discmethod, discitv = discitv)
+h1n1gdm
+plot(h1n1gdm)
+}
 
 }

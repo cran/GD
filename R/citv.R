@@ -1,4 +1,6 @@
-#' Count data within intervals for categorical or discretized variables
+#' Counts data within intervals.
+#'
+#' @description Count data within intervals for categorical or discretized variables.
 #'
 #' @usage citv(strata_var)
 #'
@@ -6,8 +8,7 @@
 #'
 #' @importFrom stats aggregate na.omit
 #'
-#' @examples
-#' data(ndvi_40)
+#' @examples 
 #' ds1 <- disc(ndvi_40$Tempchange, 4)
 #' stv1 <- stra(ndvi_40$Tempchange, ds1$itv)
 #' citv(stv1)

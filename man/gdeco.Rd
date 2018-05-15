@@ -4,24 +4,32 @@
 \alias{gdeco}
 \alias{print.gdeco}
 \alias{plot.gdeco}
-\title{Calculate ecological detectors and ecological matrix and visulization}
+\title{Geographical detectors: ecological detector.}
 \usage{
-gdeco(y, x)
-\\method{print}{gdeco}(result)
-\\method{plot}{gdeco}(result)
+gdeco(formula, data = NULL)
+\method{print}{gdeco}(x, ...)
+\method{plot}{gdeco}(x, ...)
 }
 \arguments{
-\item{y}{A numeric vector of response variable}
+\item{formula}{A formula of response and explanatory variables}
 
-\item{x}{A vector or a data.frame of explanatory variables}
+\item{data}{A data.frame includes response and explanatory variables}
 
-\item{result}{A list of ecological detector results}
+\item{x}{A list of ecological detector results}
+
+\item{...}{Ignore}
 }
 \description{
-Calculate ecological detectors and ecological matrix and visulization
+Function for ecological detector calculation, ecological
+matrix and visulization.
 }
 \examples{
-ge1 <- gdeco(ndvi_40$NDVIchange, ndvi_40[,2:3])
-# ge1
+ge1 <- gdeco(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
+ge1
+\donttest{
+data <- ndvi_40[,1:3]
+ge2 <- gdeco(NDVIchange ~ ., data = data)
+ge2
+}
 
 }

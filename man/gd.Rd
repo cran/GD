@@ -4,24 +4,32 @@
 \alias{gd}
 \alias{print.gd}
 \alias{plot.gd}
-\title{Calculate geographical detectors}
+\title{Geographical detectors: factor detector.}
 \usage{
-gd(y, x)
-\\method{print}{gd}(result)
-\\method{plot}{gd}(result)
+gd(formula, data = NULL)
+\method{print}{gd}(x, ...)
+\method{plot}{gd}(x, ...)
 }
 \arguments{
-\item{y}{A numeric vector of response variable}
+\item{formula}{A formula of response and explanatory variables}
 
-\item{x}{A vector or a data.frame of explanatory variables}
+\item{data}{A data.frame includes response and explanatory variables}
 
-\item{result}{A list of factor detector results}
+\item{x}{A list of factor detector results}
+
+\item{...}{Ignore}
 }
 \description{
-Calculate geographical detectors
+Function for calculating power determinant using factor detector
+of geographical detectors and visualization.
 }
 \examples{
-g1 <- gd(ndvi_40$NDVIchange, ndvi_40$Climatezone)
-# g1
+g1 <- gd(NDVIchange ~ Climatezone, data = ndvi_40)
+g1
+\donttest{
+data <- ndvi_40[,1:3]
+g2 <- gd(NDVIchange ~ ., data = data)
+g2
+}
 
 }

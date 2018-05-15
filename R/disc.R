@@ -1,8 +1,12 @@
-#' Convert continuous data to discretized data
+#' Generates discretization parameters for continuous data.
+#'
+#' @description Function for discretizing continuous data and obtaining the
+#' different outputs, including discretization intervals, numbers of values
+#' within intervals, and visualization of discretization.
 #'
 #' @usage disc(var, n, method = "quantile", ManualItv)
-#' \\method{print}{disc}(result)
-#' \\method{plot}{disc}(result)
+#' \method{print}{disc}(x, ...)
+#' \method{plot}{disc}(x, ...)
 #'
 #' @aliases disc print.disc plot.disc
 #'
@@ -10,16 +14,17 @@
 #' @param n The numeber of intervals
 #' @param method A character of discretization method
 #' @param ManualItv A numeric vector of manual intervals
-#' @param result A list of \code{disc} result
+#' @param x A list of \code{disc} result
+#' @param ... Ignore
 #'
 #' @importFrom stats na.omit quantile
 #' @importFrom ggplot2 ggplot aes geom_histogram theme_bw labs geom_vline
 #' @importFrom BAMMtools getJenksBreaks
 #'
-#' @examples
+#' @examples 
 #' ## method is default (quantile); number of intervals is 4
 #' ds1 <- disc(ndvi_40$Tempchange, 4)
-#' # ds1
+#' ds1
 #' ## method is equal; number of intervals is 4
 #' ds2 <- disc(ndvi_40$Tempchange, 4, method = "equal")
 #' ## method is manual; number of intervals is 4
@@ -95,21 +100,21 @@ disc <- function(var, n, method = "quantile", ManualItv){
   disc.list
 }
 
-print.disc <- function(result){
-  cat("Intervals:\n", result$itv)
+print.disc <- function(x, ...){
+  cat("Intervals:\n", x$itv)
   cat("\n")
-  cat("Numbers of data within intervals:\n", result$c.itv)
-  invisible(result)
+  cat("Numbers of data within intervals:\n", x$c.itv)
+  invisible(x)
 }
 
-plot.disc <- function(result){
-  var <- result$var
+plot.disc <- function(x, ...){
+  var <- x$var
   var <- as.data.frame(var)
   plotdisc <- ggplot(data=var, aes(var)) +
     geom_histogram(breaks=seq(min(var), max(var), by = ((max(var) - min(var))/30))) +
     theme_bw() +
     labs(x = "variable", y = "Frequency") +
-    geom_vline(xintercept=result$itv, color = "red")
+    geom_vline(xintercept=x$itv, color = "red")
   return(plotdisc)
 }
 

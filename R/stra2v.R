@@ -1,11 +1,11 @@
-#' Generate two categorical or discretized variables determined strata variables
+#' Generates two categorical or discretized variables determined strata.
 #'
 #' @usage stra2v(categorical_var1, categorical_var2)
 #'
 #' @param categorical_var1 A vector of a categorical variable
 #' @param categorical_var2 A vector of a categorical variable
 #'
-#' @examples
+#' @examples 
 #' stv2 <- stra2v(ndvi_40$Climatezone, ndvi_40$Mining)
 #'
 #' @export

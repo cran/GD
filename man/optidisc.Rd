@@ -4,25 +4,28 @@
 \alias{optidisc}
 \alias{print.optidisc}
 \alias{plot.optidisc}
-\title{Optimal discretization for continuous variables and visualization}
+\title{Optimal discretization for continuous variables and visualization.}
 \usage{
-optidisc(y = y, x = x, discmethod = discmethod, discitv = discitv)
-\\method{print}{optidisc}(result)
-\\method{plot}{optidisc}(result)
+optidisc(continuous_variable, response_variable,
+        discmethod = discmethod, discitv = discitv)
+\method{print}{optidisc}(x, ...)
+\method{plot}{optidisc}(x, ...)
 }
 \arguments{
-\item{y}{A numeric vector of response variable}
+\item{continuous_variable}{A vector or a data.frame of continuous explanatory variables}
 
-\item{x}{A numeric vector of explanatory variable}
+\item{response_variable}{A vector of response variable}
 
 \item{discmethod}{A character vector of discretization methods}
 
 \item{discitv}{A numeric vector of numbers of intervals}
 
-\item{result}{A list of \code{optidisc} result}
+\item{x}{A list of \code{optidisc} result}
+
+\item{...}{Ignore}
 }
 \description{
-Optimal discretization for continuous variables and visualization
+Optimal discretization for continuous variables and visualization.
 }
 \examples{
 ## set optional discretization methods and numbers of intervals
@@ -30,9 +33,7 @@ Optimal discretization for continuous variables and visualization
 discmethod <- c("equal","natural","quantile","geometric","sd")
 discitv <- c(3:7)
 ## optimal discretization
-odc1 <- optidisc(ndvi_40$NDVIchange, ndvi_40$Tempchange, discmethod, discitv)
-# odc1
-# plot(odc1)
-# plot(odc1$discretization)
-
+odc1 <- optidisc(ndvi_40$Tempchange, ndvi_40$NDVIchange, discmethod, discitv)
+odc1
+plot(odc1)
 }

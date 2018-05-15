@@ -1,30 +1,47 @@
-#' Calculate geographical detectors
+#' Geographical detectors: factor detector.
 #'
-#' @usage gd(y, x)
-#' \\method{print}{gd}(result)
-#' \\method{plot}{gd}(result)
+#' @description Function for calculating power determinant using factor detector
+#' of geographical detectors and visualization.
+#'
+#' @usage gd(formula, data = NULL)
+#' \method{print}{gd}(x, ...)
+#' \method{plot}{gd}(x, ...)
 #'
 #' @aliases gd print.gd plot.gd
 #'
-#' @param y A numeric vector of response variable
-#' @param x A vector or a data.frame of explanatory variables
-#' @param result A list of factor detector results
+#' @param formula A formula of response and explanatory variables
+#' @param data A data.frame includes response and explanatory variables
+#' @param x A list of factor detector results
+#' @param ... Ignore
 #'
-#' @importFrom stats sd pf
+#' @importFrom stats as.formula sd pf
 #' @importFrom ggplot2 ggplot aes geom_bar geom_text scale_x_discrete ylab
 #' coord_flip theme_bw
 #'
-#' @examples
-#' g1 <- gd(ndvi_40$NDVIchange, ndvi_40$Climatezone)
-#' # g1
+#' @examples 
+#' g1 <- gd(NDVIchange ~ Climatezone, data = ndvi_40)
+#' g1
+#' \donttest{
+#' data <- ndvi_40[,1:3]
+#' g2 <- gd(NDVIchange ~ ., data = data)
+#' g2
+#' }
 #'
 #' @export
 #'
-gd <- function(y, x){
-  ny <- length(y)
-  if (typeof(x)=="list"){
-    ncolx <- ncol(x)
-    variable <- colnames(x)
+gd <- function(formula, data = NULL){
+  formula <- as.formula(formula)
+  response <- data[,colnames(data) == as.character(formula[[2]])]
+  if (formula[[3]]=="."){
+    explanatory <- data[,-which(colnames(data) == as.character(formula[[2]]))]
+  } else {
+    explanatory <- data[,match(all.vars(formula)[-1], colnames(data))]
+  }
+
+  ny <- length(response)
+  if (typeof(explanatory)=="list"){
+    ncolx <- ncol(explanatory)
+    variable <- colnames(explanatory)
   } else {
     ncolx <- 1
     variable <- c("var")
@@ -34,10 +51,10 @@ gd <- function(y, x){
   result$qv <- NA
   result$sig <- NA
   for (i in 1:ncolx){
-    if (typeof(x)=="list"){
-      xi <- x[,i]
+    if (typeof(explanatory)=="list"){
+      xi <- explanatory[,i]
     } else {
-      xi <- x
+      xi <- explanatory
     }
 
     # non-central F test
@@ -45,16 +62,16 @@ gd <- function(y, x){
     nx <- length(xx) # number of strata
     na <- c()
     for (u in 1:nx){
-      na[u] <- length(y[which(xi==xx[u])]) * sd(y[which(xi==xx[u])])^2
+      na[u] <- length(response[which(xi==xx[u])]) * sd(response[which(xi==xx[u])])^2
     }
-    qv <- 1 - sum(na, na.rm = T)/(length(y)*sd(y)^2)
+    qv <- 1 - sum(na, na.rm = T)/(length(response)*sd(response)^2)
     Fv <- (ny - nx)/(nx - 1)*qv/(1 - qv)
     m1 <- c(); m2 <- c()
     for (u in 1:nx){
-      m1[u] <- mean(y[which(xi==xx[u])])^2
-      m2[u] <- sqrt(length(y[which(xi==xx[u])])) * mean(y[which(xi==xx[u])])
+      m1[u] <- mean(response[which(xi==xx[u])])^2
+      m2[u] <- sqrt(length(response[which(xi==xx[u])])) * mean(response[which(xi==xx[u])])
     }
-    lambda <- (sum(m1) - sum(m2)^2/ny)/sd(y)^2
+    lambda <- (sum(m1) - sum(m2)^2/ny)/sd(response)^2
     p0 <- pf(Fv, df1 = (nx - 1), df2 = (ny - nx), ncp = lambda)
     sig <- 2*(1-p0)
     result$qv[i] <- qv
@@ -66,17 +83,22 @@ gd <- function(y, x){
   result
 }
 
-print.gd <- function(result){
-  rs0 <- result[[1]]
+print.gd <- function(x, ...){
+  rs0 <- x[[1]]
   print(rs0)
-  invisible(result)
+  invisible(x)
 }
 
-plot.gd <- function(result){
+plot.gd <- function(x, ...){
   variable <- NA; qv <- NA
-  rs0 <- result[[1]]
+  rs0 <- x[[1]]
   rs1 <- rs0[order(rs0$qv, decreasing = TRUE),]
-  rs2 <- rs1[which(rs1$sig < 0.05),]
+  rs2_k <- which(rs1$sig < 0.05)
+  if (length(rs2_k) == 0){
+    warning("all spatial associations are not significant at the 0.05 level.")
+  } else {
+    rs2 <- rs1[rs2_k,]
+  }
   if (nrow(rs2) > nrow(rs1)){
     nrow21 <- nrow(rs2) - nrow(rs1)
     cat("\n",nrow21,"variable/variables are removed due to the signficance higher than 0.05.\n")

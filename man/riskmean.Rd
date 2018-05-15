@@ -4,25 +4,32 @@
 \alias{riskmean}
 \alias{print.riskmean}
 \alias{plot.riskmean}
-\title{Calculate risk means within intervals and visualization}
+\title{Geographical detectors: risk means in risk detector.}
 \usage{
-riskmean(y, x)
-\\method{print}{riskmean}(result)
-\\method{plot}{riskmean}(result)
+riskmean(formula, data = NULL)
+\method{print}{riskmean}(x, ...)
+\method{plot}{riskmean}(x, ...)
 }
 \arguments{
-\item{y}{A numeric vector of response variable}
+\item{formula}{a formula of response and explanatory variables}
 
-\item{x}{A vector or a data.frame of explanatory variables}
+\item{data}{a data.frame includes response and explanatory variables}
 
-\item{result}{A data.frame of risk mean values}
+\item{x}{a list of risk mean values}
+
+\item{...}{ignore}
 }
 \description{
-Calculate risk means within intervals and visualization
+Function for calculating risk means within intervals and visualization.
 }
 \examples{
-rm1 <- riskmean(ndvi_40$NDVIchange, ndvi_40[,2:3])
-# rm1
-# plot(rm1)
+rm1 <- riskmean(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
+rm1
+plot(rm1)
+\donttest{
+data <- ndvi_40[,1:3]
+rm2 <- riskmean(NDVIchange ~ ., data = data)
+rm2
+}
 
 }

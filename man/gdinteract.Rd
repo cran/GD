@@ -4,28 +4,34 @@
 \alias{gdinteract}
 \alias{print.gdinteract}
 \alias{plot.gdinteract}
-\title{Calculate interaction detectors and visualization. The types of interactions
-include "Enhance, nonlinear", "Independent", "Enhance, bi-",
-"Weaken, uni-" and "Weaken, nonlinear".}
+\title{Geographical detectors: interaction detector.}
 \usage{
-gdinteract(y, x)
-\\method{print}{gdinteract}(result)
-\\method{plot}{gdinteract}(result)
+gdinteract(formula, data = NULL)
+\method{print}{gdinteract}(x, ...)
+\method{plot}{gdinteract}(x, ...)
 }
 \arguments{
-\item{y}{A numeric vector of response variable}
+\item{formula}{A formula of response and explanatory variables}
 
-\item{x}{A vector or a data.frame of explanatory variables}
+\item{data}{A data.frame includes response and explanatory variables}
 
-\item{result}{A list of interaction detector results}
+\item{x}{A list of interaction detector results}
+
+\item{...}{Ignore}
 }
 \description{
-Calculate interaction detectors and visualization. The types of interactions
+Function for interaction detector calculation and visualization.
+The types of interactions
 include "Enhance, nonlinear", "Independent", "Enhance, bi-",
 "Weaken, uni-" and "Weaken, nonlinear".
 }
 \examples{
-gi1 <- gdinteract(ndvi_40$NDVIchange, ndvi_40[,2:3])
-# gi1
+gi1 <- gdinteract(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
+gi1
+\donttest{
+data <- ndvi_40[,1:3]
+gi2 <- gdinteract(NDVIchange ~ ., data = data)
+gi2
+}
 
 }
