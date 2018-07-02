@@ -32,4 +32,5 @@ for (i in 1:length(su)){
                      discmethod = discmethod, discitv = discitv)
 }
 sesu(gdlist, su) ## size effects of spatial units
+
 }

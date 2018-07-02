@@ -16,4 +16,5 @@ Generates two categorical or discretized variables determined strata.
 }
 \examples{
 stv2 <- stra2v(ndvi_40$Climatezone, ndvi_40$Mining)
+
 }

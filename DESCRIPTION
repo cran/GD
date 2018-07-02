@@ -1,8 +1,8 @@
 Package: GD
 Type: Package
 Title: Geographical Detectors
-Date: 2018-05-15
-Version: 1.5
+Date: 2018-07-01
+Version: 1.6
 Authors@R: person("Yongze Song", email = "yongze.song@postgrad.curtin.edu.au",
                   comment = c(ORCID = "0000-0003-3420-9622"),
                   role = c("aut", "cre"))
@@ -22,7 +22,7 @@ LazyData: true
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2018-05-15 13:46:25 UTC; zack
+Packaged: 2018-07-02 01:52:10 UTC; zack
 Author: Yongze Song [aut, cre] (<https://orcid.org/0000-0003-3420-9622>)
 Repository: CRAN
-Date/Publication: 2018-05-15 14:02:50 UTC
+Date/Publication: 2018-07-02 04:30:02 UTC

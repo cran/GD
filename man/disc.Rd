@@ -37,4 +37,5 @@ ds2 <- disc(ndvi_40$Tempchange, 4, method = "equal")
 ## method is manual; number of intervals is 4
 manualitv1 <- c(-0.5, 0, 1, 2, 4)
 ds3 <- disc(ndvi_40$Tempchange, 4, method = "manual", ManualItv = manualitv1)
+
 }

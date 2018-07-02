@@ -16,4 +16,5 @@ Count data within intervals for categorical or discretized variables.
 ds1 <- disc(ndvi_40$Tempchange, 4)
 stv1 <- stra(ndvi_40$Tempchange, ds1$itv)
 citv(stv1)
+
 }

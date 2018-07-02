@@ -58,22 +58,24 @@ gd <- function(formula, data = NULL){
     }
 
     # non-central F test
-    xx <- levels(factor(xi))
+    xx <- as.character(levels(factor(xi)))
     nx <- length(xx) # number of strata
-    na <- c()
+    na <- c(); m1 <- c(); m2 <- c()
+    response2 <- response
     for (u in 1:nx){
-      na[u] <- length(response[which(xi==xx[u])]) * sd(response[which(xi==xx[u])])^2
+      ku <- which(xi==xx[u])
+      yu <- response[ku]
+      na[u] <- (length(yu) - 1) * sd(yu)^2
+      m1[u] <- mean(yu)^2
+      m2[u] <- sqrt(length(yu)) * mean(yu)
     }
-    qv <- 1 - sum(na, na.rm = T)/(length(response)*sd(response)^2)
-    Fv <- (ny - nx)/(nx - 1)*qv/(1 - qv)
-    m1 <- c(); m2 <- c()
-    for (u in 1:nx){
-      m1[u] <- mean(response[which(xi==xx[u])])^2
-      m2[u] <- sqrt(length(response[which(xi==xx[u])])) * mean(response[which(xi==xx[u])])
-    }
-    lambda <- (sum(m1) - sum(m2)^2/ny)/sd(response)^2
-    p0 <- pf(Fv, df1 = (nx - 1), df2 = (ny - nx), ncp = lambda)
-    sig <- 2*(1-p0)
+    qv <- 1 - sum(na, na.rm = T)/((length(response) - 1) * sd(response)^2)
+    v1 <- nx - 1
+    v2 <- ny - nx
+    Fv <- (qv/v1) / ((1-qv)/v2)
+    lambda <- (sum(m1) - sum(m2)^2/ny)/(sd(response)^2)
+    p0 <- pf(Fv, df1 = v1, df2 = v2, ncp = lambda)
+    sig <- 1 - p0
     result$qv[i] <- qv
     result$sig[i] <- sig
   }

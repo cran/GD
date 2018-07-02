@@ -36,4 +36,5 @@ discitv <- c(3:7)
 odc1 <- optidisc(ndvi_40$Tempchange, ndvi_40$NDVIchange, discmethod, discitv)
 odc1
 plot(odc1)
+
 }
