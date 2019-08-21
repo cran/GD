@@ -66,10 +66,9 @@ Further information can be found on the [manual][1] of **GD** package.
 ```{r, eval = FALSE}
 ## set optional discretization methods and numbers of intervals
 discmethod <- c("equal","natural","quantile","geometric","sd")
-discitv <- c(3:7)
+discitv <- c(4:7)
 ## optimal discretization
-odc1 <- optidisc(continuous_variable = ndvi_40$Tempchange, 
-                 response_variable = ndvi_40$NDVIchange, 
+odc1 <- optidisc(NDVIchange ~ Tempchange, data = ndvi_40,
                  discmethod, discitv)
 odc1
 plot(odc1)
@@ -85,11 +84,6 @@ plot(odc1)
 
 ```{r, eval = FALSE}
 ## NDVI: ndvi_40
-## define elements orders of categorical variables
-cz <- c("Bwk","Bsk","Dwa","Dwb","Dwc") ## climate zone
-mp <- c("very low","low","medium","high","very high") ## mining production
-ndvi_40$Climatezone <- as.numeric(1:5)[match(ndvi_40$Climatezone, cz)]
-ndvi_40$Mining <- as.numeric(1:5)[match(ndvi_40$Mining, mp)]
 ## set optional parameters of optimal discretization
 ## optional methods: equal, natural, quantile, geometric, sd and manual
 discmethod <- c("equal","natural","quantile")
@@ -131,14 +125,16 @@ plot(g2)
 ## multiple variables inclusing continuous variables
 discmethod <- c("equal","natural","quantile","geometric","sd")
 discitv <- c(3:7)
-data_ndvi <- ndvi_40
-odc1 <- optidisc(continuous_variable = data_ndvi[,4:7], 
-                 response_variable = data_ndvi$NDVIchange, 
-                 discmethod, discitv)
-for (i in 4:7){
-  data_ndvi[,i] <- stra(data_ndvi[,i], odc1[[i-3]]$itv)
-}
-g3 <- gd(NDVIchange ~ ., data = data_ndvi)
+data.ndvi <- ndvi_40
+
+data.continuous <- data.ndvi[, c(1, 4:7)]
+odc1 <- optidisc(NDVIchange ~ ., data = data.continuous, discmethod, discitv)
+data.continuous <- do.call(cbind, lapply(1:4, function(x)
+  data.frame(cut(data.continuous[, -1][, x], unique(odc1[[x]]$itv), include.lowest = TRUE))))
+    # add stratified data to explanatory variables
+data.ndvi[, 4:7] <- data.continuous
+
+g3 <- gd(NDVIchange ~ ., data = data.ndvi)
 g3
 plot(g3)
 ```
@@ -153,9 +149,9 @@ rm1 <- riskmean(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 rm1
 plot(rm1)
 ## multiple variables inclusing continuous variables
-rm3 <- riskmean(NDVIchange ~ ., data = data_ndvi)
-rm3
-plot(rm3)
+rm2 <- riskmean(NDVIchange ~ ., data = data.ndvi)
+rm2
+plot(rm2)
 ```
 
 Risk matrix:
@@ -166,9 +162,9 @@ gr1 <- gdrisk(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 gr1
 plot(gr1)
 ## multiple variables inclusing continuous variables
-gd3 <- gdrisk(NDVIchange ~ ., data = data_ndvi)
-gd3
-plot(gd3)
+gr2 <- gdrisk(NDVIchange ~ ., data = data.ndvi)
+gr2
+plot(gr2)
 ```
 
 ### Interaction detector: `gdinteract`
@@ -178,9 +174,9 @@ plot(gd3)
 gi1 <- gdinteract(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 gi1
 ## multiple variables inclusing continuous variables
-gi3 <- gdinteract(NDVIchange ~ ., data = data_ndvi)
-gi3
-plot(gi3)
+gi2 <- gdinteract(NDVIchange ~ ., data = data.ndvi)
+gi2
+plot(gi2)
 ```
 
 ### Ecological detector: `gdeco`
@@ -190,7 +186,7 @@ plot(gi3)
 ge1 <- gdeco(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 ge1
 ## multiple variables inclusing continuous variables
-gd3 <- gdeco(NDVIchange ~ ., data = data_ndvi)
+gd3 <- gdeco(NDVIchange ~ ., data = data.ndvi)
 gd3
 plot(gd3)
 ```
@@ -198,22 +194,15 @@ plot(gd3)
 ## Comparison of size effects of spatial unit
 
 ```{r, eval = FALSE}
-ndvilist <- list(ndvi_10, ndvi_20, ndvi_30, ndvi_40, ndvi_50)
-su <- c(10,20,30,40,50) ## sizes of spatial units
-gdlist <- list() ## list of all geographical detectors results
-## set optional parameters of optimal discretization
-discmethod <- c("equal","natural","quantile","geometric","sd")
-discitv <- c(3:7)
-## "gdm" function (~ 40s)
-for (i in 1:length(su)){
-  ndvidata <- ndvilist[[i]]
-  gdlist[[i]] <- gdm(NDVIchange ~ .,
-                     continuous_variable = c("Tempchange", "Precipitation", "GDP", "Popdensity"),
-                     data = ndvidata,
-                     discmethod = discmethod, discitv = discitv)
-}
-## size effects of spatial units
-sesu(gdlist, su) 
+ndvilist <- list(ndvi_20, ndvi_30, ndvi_40, ndvi_50)
+su <- c(20,30,40,50) ## sizes of spatial units
+## "gdm" function
+gdlist <- lapply(ndvilist, function(x){
+  gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
+      continuous_variable = c("Tempchange", "GDP"),
+      data = x, discmethod = "quantile", discitv = 6)
+})
+sesu(gdlist, su) ## size effects of spatial units
 ```
 
 ## Reference

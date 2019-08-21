@@ -1,7 +1,4 @@
 disc	Generates discretization parameters for continuous data.
-stra	Converts discretized data to strata variables.
-stra2v	Generates two categorical or discretized variables determined strata.
-citv	Counts data within intervals.
 optidisc	Optimal discretization for continuous variables and visualization.
 gd	Geographical detectors: factor detector.
 riskmean	Geographical detectors: risk means in risk detector.

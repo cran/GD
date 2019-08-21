@@ -6,15 +6,16 @@
 \alias{plot.optidisc}
 \title{Optimal discretization for continuous variables and visualization.}
 \usage{
-optidisc(continuous_variable, response_variable,
+optidisc(formula, data,
         discmethod = discmethod, discitv = discitv)
 \method{print}{optidisc}(x, ...)
 \method{plot}{optidisc}(x, ...)
 }
 \arguments{
-\item{continuous_variable}{A vector or a data.frame of continuous explanatory variables}
+\item{formula}{A formula of response and explanatory variables,
+where the explanatory variables must be continuous variables to be discretized.}
 
-\item{response_variable}{A vector of response variable}
+\item{data}{A data.frame includes response and explanatory variables}
 
 \item{discmethod}{A character vector of discretization methods}
 
@@ -30,10 +31,10 @@ Optimal discretization for continuous variables and visualization.
 \examples{
 ## set optional discretization methods and numbers of intervals
 # optional methods: equal, natural, quantile, geometric, sd and manual
-discmethod <- c("equal","natural","quantile","geometric","sd")
-discitv <- c(3:7)
+discmethod <- c("equal","quantile")
+discitv <- c(4:5)
 ## optimal discretization
-odc1 <- optidisc(ndvi_40$Tempchange, ndvi_40$NDVIchange, discmethod, discitv)
+odc1 <- optidisc(NDVIchange ~ Tempchange, ndvi_40, discmethod, discitv)
 odc1
 plot(odc1)
 

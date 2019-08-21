@@ -33,22 +33,17 @@ multiple variables and visualization.
 ###############
 ## NDVI: ndvi_40
 ###############
-## define elements orders of categorical variables
-cz <- c("Bwk","Bsk","Dwa","Dwb","Dwc") ## climate zone
-mp <- c("very low","low","medium","high","very high") ## mining production
-ndvi_40$Climatezone <- as.numeric(1:5)[match(ndvi_40$Climatezone, cz)]
-ndvi_40$Mining <- as.numeric(1:5)[match(ndvi_40$Mining, mp)]
 ## set optional parameters of optimal discretization
 ## optional methods: equal, natural, quantile, geometric, sd and manual
-discmethod <- c("equal","natural","quantile")
-discitv <- c(4:6)
+discmethod <- c("equal","quantile")
+discitv <- c(4:5)
 ## "gdm" function
-ndvigdm <- gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
-               continuous_variable = c("Tempchange", "GDP"),
+ndvigdm <- gdm(NDVIchange ~ Climatezone + Mining + Tempchange,
+               continuous_variable = c("Tempchange"),
                data = ndvi_40,
                discmethod = discmethod, discitv = discitv)
 ndvigdm
-# plot(ndvigdm)
+plot(ndvigdm)
 \dontrun{
 #############
 ## H1N1: h1n1_100

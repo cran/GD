@@ -8,55 +8,55 @@
 #' @param gdlist A list of \code{gdm} result or \code{gd} result
 #' @param su A vector of sizes of spatial units
 #'
-#' @importFrom ggplot2 ggplot aes geom_point geom_line scale_color_discrete
-#' xlab ylab theme_bw
+#' @importFrom graphics mtext
 #'
-#' @examples 
+#' @examples
 #' ndvilist <- list(ndvi_30, ndvi_40, ndvi_50)
-#' su <- c(30,40,50) ## sizes of spatial units
-#' gdlist <- list() ## list of all geographical detectors results
-#' ## set optional parameters of optimal discretization
-#' ## optional methods: equal, natural, quantile, geometric, sd and manual
-#' discmethod <- c("equal","natural","quantile")
-#' discitv <- c(4:6)
+#' su <- c(30, 40, 50) ## sizes of spatial units
 #' ## "gdm" function
-#' for (i in 1:length(su)){
-#'   ndvidata <- ndvilist[[i]]
-#'   gdlist[[i]] <- gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
-#'                      continuous_variable = c("Tempchange", "GDP"),
-#'                      data = ndvidata,
-#'                      discmethod = discmethod, discitv = discitv)
-#' }
+#' gdlist <- lapply(ndvilist, function(x){
+#'   gdm(NDVIchange ~ Climatezone + Mining, data = x)
+#' })
 #' sesu(gdlist, su) ## size effects of spatial units
 #'
 #' @export
 
 sesu <- function(gdlist, su){
-  if (length(su) < 2){
-    cat("\nAt least two sizes of spatial unit are required for comparison.\n\n")
-  } else {
-    nv <- length(gdlist[[1]]$Factor.detector$Factor$variable)
-    sux <- rep(su,each=nv)
-    variable <- c()
-    qv <- c()
-    sig <- c()
-    for (i in 1:length(su)){
-      variable <- c(variable, as.character(gdlist[[1]]$Factor.detector$Factor$variable))
-      qv <- c(qv, gdlist[[i]]$Factor.detector$Factor$qv)
-      sig <- c(sig, gdlist[[i]]$Factor.detector$Factor$sig)
-    }
-    result <- as.data.frame(cbind(sux, qv, sig))
-    result$variable <- variable
-    result <- result[which(result$sig <= 0.05),]
-    plotsu <- ggplot(data = result, aes(x = sux, y = qv, colour = variable)) +
-      geom_point() +
-      geom_line() +
-      scale_color_discrete(limit = variable[!duplicated(variable)]) +
-      xlab("Size of spatial unit") +
-      ylab("Q value") +
-      theme_bw()
-    print(plotsu)
+  nsu <- length(su)
+  if (nsu < 2){
+    stop("At least two sizes of spatial unit are required for comparison.\n\n")
   }
+  # debug: use matplot to simplify visualization
+  var <- as.character(gdlist[[1]]$Factor.detector$Factor$variable)
+  qv <- t(sapply(gdlist, function(x) x$Factor.detector$Factor$qv))
+  sig <- t(sapply(gdlist, function(x) x$Factor.detector$Factor$sig))
+
+  qv[which(sig >= 0.05)] <- NA
+  qv90 <- apply(qv, 1, function(x) quantile(x, 0.9, na.rm = TRUE))
+
+  rnames <- su
+  cnames <- var
+  ncol.qv <- ncol(qv)
+
+  par(mar = c(5.1, 4.1, 2.1, 5.1))
+  matplot(x = su, y = qv, type = "p",
+          pch = 1:ncol.qv - 1, col = 1:ncol.qv + 1,
+          xaxt = "n", xlab = "Size of spatial unit", ylab = "Q value", las = 1)
+  axis(1, at = rnames, labels = rnames)
+  matlines(x = rnames, y = qv, type = "l",
+           lty = 1:ncol.qv,
+           col = 1:ncol.qv + 1)
+  text.location.y <- apply(qv, 2, function(x) x[!is.na(x)][1])
+  text(x = rnames[1], y = text.location.y,
+       labels = cnames, pos = 4, col = 1:ncol.qv + 1)
+
+  par(new = T)
+  plot(x = su, y = qv90, type = "b", pch = 16, cex = 0.8, axes = F, xlab = NA, ylab = NA)
+  axis(side = 4, las = 1)
+  mtext(side = 4, line = 3, 'The 90% quantile of Q values')
+  text(x = rnames[nsu], y = qv90[nsu], labels = "90% quantile", pos = 2)
+
+  par(mar = c(5.1, 4.1, 4.1, 2.1))
 }
 
 

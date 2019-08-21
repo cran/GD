@@ -19,26 +19,21 @@
 #'
 #' @importFrom grid grid.newpage pushViewport viewport grid.layout
 #'
-#' @examples 
+#' @examples
 #' ###############
 #' ## NDVI: ndvi_40
 #' ###############
-#' ## define elements orders of categorical variables
-#' cz <- c("Bwk","Bsk","Dwa","Dwb","Dwc") ## climate zone
-#' mp <- c("very low","low","medium","high","very high") ## mining production
-#' ndvi_40$Climatezone <- as.numeric(1:5)[match(ndvi_40$Climatezone, cz)]
-#' ndvi_40$Mining <- as.numeric(1:5)[match(ndvi_40$Mining, mp)]
 #' ## set optional parameters of optimal discretization
 #' ## optional methods: equal, natural, quantile, geometric, sd and manual
-#' discmethod <- c("equal","natural","quantile")
-#' discitv <- c(4:6)
+#' discmethod <- c("equal","quantile")
+#' discitv <- c(4:5)
 #' ## "gdm" function
-#' ndvigdm <- gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
-#'                continuous_variable = c("Tempchange", "GDP"),
+#' ndvigdm <- gdm(NDVIchange ~ Climatezone + Mining + Tempchange,
+#'                continuous_variable = c("Tempchange"),
 #'                data = ndvi_40,
 #'                discmethod = discmethod, discitv = discitv)
 #' ndvigdm
-#' # plot(ndvigdm)
+#' plot(ndvigdm)
 #' \dontrun{
 #' #############
 #' ## H1N1: h1n1_100
@@ -60,44 +55,39 @@
 
 gdm <- function(formula, continuous_variable = NULL, data = NULL, discmethod, discitv){
   formula <- as.formula(formula)
-  response <- data[,colnames(data) == as.character(formula[[2]])]
-  if (formula[[3]]=="."){
-    explanatory <- data[,-which(colnames(data) == as.character(formula[[2]]))]
+  formula.vars <- all.vars(formula)
+  response <- subset(data, select = formula.vars[1]) # debug: use subset to select data
+  if (formula.vars[2] == "."){
+    explanatory <- subset(data, select = -match(formula.vars[1], colnames(data))) # debug: subset
   } else {
-    explanatory <- data[,match(all.vars(formula)[-1], colnames(data))]
+    explanatory <- subset(data, select = formula.vars[-1])
   }
-
 
   ### result of optimal discretization
   if (!is.null(continuous_variable)){
-    explanatory_continuous <- data[,match(continuous_variable, colnames(data))]
-    explanatory_continuous <- as.data.frame(explanatory_continuous)
-    names(explanatory_continuous) <- continuous_variable
-    n_continuous <- ncol(explanatory_continuous)
-    odc1 <- optidisc(explanatory_continuous, response, discmethod, discitv)
-
-    for (i in 1:n_continuous){
-      stra.x <- stra(explanatory_continuous[[i]], odc1[[i]]$itv)
-      explanatory_continuous[,i] <- stra.x
-    }
-
-    explanatory[,match(continuous_variable, colnames(explanatory))] <- explanatory_continuous
+    explanatory_continuous <- subset(data, select = match(continuous_variable, colnames(data)))
+    n.continuous <- ncol(explanatory_continuous)
+    data.ctn <- cbind(y = response[, 1], explanatory_continuous)
+    # debug: use new optidisc function and lapply
+    odc1 <- optidisc(y ~ ., data.ctn, discmethod, discitv)
+    explanatory_stra <- do.call(cbind, lapply(1:n.continuous, function(x)
+      data.frame(cut(explanatory_continuous[, x], unique(odc1[[x]]$itv), include.lowest = TRUE))))
+    # debug: use cut to replace stra; use data.frame to remain stra names
+    # add stratified data to explanatory variables
+    explanatory[, match(continuous_variable, colnames(explanatory))] <- explanatory_stra
   }
 
-  response <- as.data.frame(response)
-  names(response) <- as.character(formula[[2]])
-  data <- cbind(response, explanatory)
-
+  newdata <- cbind(response, explanatory)
 
   ### geographical detectors
 
   ### factor detectors
-  gd1 <- gd(formula, data)
+  gd1 <- gd(formula, newdata)
   ### risk detectors
-  gdrm1 <- riskmean(formula, data)
-  gdr1 <- gdrisk(formula, data)
+  gdrm1 <- riskmean(formula, newdata)
+  gdr1 <- gdrisk(formula, newdata)
 
-  if (ncol(explanatory)==1){
+  if (ncol(explanatory) == 1){
    ### interaction and ecological detectors
     cat("Factor and risk detectors are computed.
         At least two explanatory variables are required for computing
@@ -106,40 +96,35 @@ gdm <- function(formula, continuous_variable = NULL, data = NULL, discmethod, di
     gde1 <- c()
   } else {
     ### interaction detectors
-    gdi1 <- gdinteract(formula, data)
+    gdi1 <- gdinteract(formula, newdata)
     ### ecological detectors
-    gde1 <- gdeco(formula, data)
+    gde1 <- gdeco(formula, newdata)
   }
-
 
   ### output
   if (is.null(continuous_variable)){
-    result <- list("Factor.detector"=gd1,"Risk.mean"=gdrm1,"Risk.detector"=gdr1,
-                   "Interaction.detector"=gdi1,"Ecological.detector"=gde1)
+    result <- list("Factor.detector" = gd1,"Risk.mean" = gdrm1,"Risk.detector" = gdr1,
+                   "Interaction.detector" = gdi1,"Ecological.detector" = gde1)
   } else {
-    result <- list("Discretization"=odc1,"Factor.detector"=gd1,
-                   "Risk.mean"=gdrm1,"Risk.detector"=gdr1,
-                   "Interaction.detector"=gdi1,"Ecological.detector"=gde1)
+    result <- list("Discretization" = odc1,"Factor.detector" = gd1,
+                   "Risk.mean" = gdrm1,"Risk.detector" = gdr1,
+                   "Interaction.detector" = gdi1,"Ecological.detector" = gde1)
   }
   ## define class
   class(result) <- "gdm"
   result
 }
 
-
-
 print.gdm <- function(x, ...){
   ### print optimal discretization
   if (length(x$Discretization)==0){
     cat("Explanatory variables are categorical variables.\n\n")
   } else {
-    cat("Explanatory variables include continuous variables.\n\n")
-    namesxct <- names(x$Discretization)
-    cat("Optimal discretization results of ", namesxct, ":\n\n")
+    cat("Explanatory variables include", length(x$Discretization), "continuous variables.\n\n")
     print(x$Discretization)
   }
   ### print geographical detectors
-  cat("\nGeographical detectors results:\n")
+  cat("Geographical detectors results:\n")
   cat("\nFactor detector:\n")
   print(x$Factor.detector)
   cat("\nRisk detector:\n")
@@ -163,21 +148,17 @@ plot.gdm <- function(x, ...){
     plot.optidisc(x$Discretization)
   }
 
-
   ### plot geographical detectors
-  cat("\nplot factor detectors ...\n\n")
-  plotf <- plot.gd(x$Factor.detector)
-  print(plotf)
-  cat("\nplot risk mean values ...\n\n")
+  cat("plot factor detectors ...\n\n")
+  plot.gd(x$Factor.detector)
+  cat("plot risk mean values ...\n\n")
   plot.riskmean(x$Risk.mean)
-  cat("\nplot risk detectors ...\n\n")
+  cat("plot risk detectors ...\n\n")
   plot.gdrisk(x$Risk.detector)
-  if (length(x$Interaction.detector)>0){
-    cat("\nplot interaction detectors ...\n\n")
-    ploti <- plot.gdinteract(x$Interaction.detector)
-    print(ploti)
-    cat("\nplot ecological detectors ...\n")
-    plote <- plot.gdeco(x$Ecological.detector)
-    print(plote)
+  if (length(x$Interaction.detector) > 0){
+    cat("plot interaction detectors ...\n\n")
+    plot.gdinteract(x$Interaction.detector)
+    cat("plot ecological detectors ...\n")
+    plot.gdeco(x$Ecological.detector)
   }
 }

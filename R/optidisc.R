@@ -1,90 +1,97 @@
 #' Optimal discretization for continuous variables and visualization.
 #'
-#' @usage optidisc(continuous_variable, response_variable,
+#' @usage optidisc(formula, data,
 #'         discmethod = discmethod, discitv = discitv)
 #' \method{print}{optidisc}(x, ...)
 #' \method{plot}{optidisc}(x, ...)
 #'
 #' @aliases optidisc print.optidisc plot.optidisc
 #'
-#' @param continuous_variable A vector or a data.frame of continuous explanatory variables
-#' @param response_variable A vector of response variable
+#' @param formula A formula of response and explanatory variables,
+#'                where the explanatory variables must be continuous variables to be discretized.
+#' @param data A data.frame includes response and explanatory variables
 #' @param discmethod A character vector of discretization methods
 #' @param discitv A numeric vector of numbers of intervals
 #' @param x A list of \code{optidisc} result
 #' @param ... Ignore
 #'
-#' @importFrom ggplot2 ggplot aes geom_line geom_point theme_bw
-#' scale_x_continuous scale_y_continuous scale_color_discrete
-#' @importFrom reshape2 melt
-#' @importFrom graphics par plot
+#' @importFrom graphics par matplot axis matlines text hist abline
 #'
-#' @examples 
+#' @examples
 #' ## set optional discretization methods and numbers of intervals
 #' # optional methods: equal, natural, quantile, geometric, sd and manual
-#' discmethod <- c("equal","natural","quantile","geometric","sd")
-#' discitv <- c(3:7)
+#' discmethod <- c("equal","quantile")
+#' discitv <- c(4:5)
 #' ## optimal discretization
-#' odc1 <- optidisc(ndvi_40$Tempchange, ndvi_40$NDVIchange, discmethod, discitv)
+#' odc1 <- optidisc(NDVIchange ~ Tempchange, ndvi_40, discmethod, discitv)
 #' odc1
 #' plot(odc1)
 #'
 #' @export
 
-optidisc <- function(continuous_variable, response_variable,
+optidisc <- function(formula, data,
                      discmethod = discmethod, discitv = discitv){
 
-  ### function of optimal discretization for an explanatory variables
-  optimaldiscretization <- function(y, x, discmethod, discitv){
-    n.itv <- length(discitv)
-    n.method <- length(discmethod)
+  formula <- as.formula(formula) # debug: use formula to optimize discretization
+  formula.vars <- all.vars(formula)
+  response <- subset(data, select = formula.vars[1])
+  if (formula.vars[2] == "."){
+    explanatory <- subset(data, select = -match(formula.vars[1], colnames(data)))
+  } else {
+    explanatory <- subset(data, select = formula.vars[-1])
+  }
+  ncolx <- ncol(explanatory)
+  variable <- colnames(explanatory)
 
-    OD <- matrix(NA, n.itv, n.method)
-    OD <- as.data.frame(OD)
-    names(OD) <- discmethod
-    OD <- cbind(discitv,OD)
+  n.itv <- length(discitv)
+  n.method <- length(discmethod)
+  op.itv.method <- data.frame(discmethod = rep(discmethod, each = n.itv),
+                              discitv = rep(discitv, n.method)) # debug: reduce dimension
 
-    for (u in 1:n.itv){ # no.itv
-      for (v in 1:n.method){ # discmethod
-        dc1 <- disc(x, discitv[u], method = discmethod[v])
-        if (min(dc1$c.itv) < 2) {
-          # remove number of data within itv < 2 due to sd() in q
-          OD[u,v+1] <- NA
-        } else {
-          stra.var1 <- stra(x, dc1$itv)
-          gddata <- as.data.frame(cbind(y,stra.var1))
-          gd1 <- gd(y ~ stra.var1, data = gddata)
-          OD[u,v+1] <- gd1$Factor$qv
-        }
+  ### calculate Q value for an explanatory variable with a number of interval and a method
+  FunDiscQ <- function(y, x, f.method, f.itv){
+    qv <- c()
+    dc1 <- disc(x, f.itv, method = f.method)
+    if (length(unique(dc1$itv)) != length(dc1$itv)){
+      # remove duplicated intervals due to extremely bias data
+      qv <- NA
+    } else {
+      x.itv <- table(cut(dc1$var, dc1$itv, include.lowest = TRUE))
+      if (min(x.itv) < 2) {
+        # remove number of data within itv < 2 due to sd() in q
+        qv <- NA
+      } else {
+        stra.var1 <- cut(x, unique(dc1$itv), include.lowest = TRUE) # debug: remove stra function
+        gddata <- as.data.frame(cbind(y, stra.var1))
+        gd1 <- gd(y ~ stra.var1, data = gddata)
+        qv <- gd1$Factor$qv
       }
     }
-    odmatrix <- OD[,-1]
-    k <- which(odmatrix==max(odmatrix, na.rm = TRUE))
-    nik <- discitv[(k[1]-1)%%n.itv+1]
-    dmk <- discmethod[(k[1]-1)%/%n.itv+1]
-
-    dc1 <- disc(x, nik, method = dmk)
-
-    optimaldiscretization.list <- list("method"=dmk, "n.itv"=nik, "itv"=dc1$itv,
-                          "c.itv"=dc1$c.itv, "OD"=OD, "discretization"=dc1)
+    return(qv)
   }
+  ### optimal discretization for a continuous variable
+  FunOpDisc <- function(vec.response, vec.explanatory, op.itv.method){
+    op.qv <- sapply(1:nrow(op.itv.method), # debug: use sapply
+                    function(x) FunDiscQ(vec.response, vec.explanatory,
+                                         f.method = as.character(op.itv.method[x, 1]),
+                                         f.itv = op.itv.method[x, 2]))
+    k <- which(op.qv == max(op.qv, na.rm = TRUE))[1]
 
-  ### optimal discretization for one or multiple continuous variables
-  if (typeof(continuous_variable)=="list"){
-    ncolx <- ncol(continuous_variable)
-    variable <- colnames(continuous_variable)
-    list1 <- list()
-    for (i in 1:ncolx){
-      list1[[i]] <- optimaldiscretization(response_variable, continuous_variable[,i],
-                                          discmethod, discitv)
-    }
-    names(list1) <- variable
-    optidisc.list <- list1
-  } else {
-    list2 <- optimaldiscretization(response_variable, continuous_variable,
-                                   discmethod, discitv)
-    optidisc.list <- list("var" = list2)
+    dmk <- as.character(op.itv.method[k, 1])
+    nik <- op.itv.method[k, 2]
+    dc1 <- disc(vec.explanatory, nik, method = dmk)
+    # debug: calculate x.itv for explanatory variables
+    x.itv <- table(cut(vec.explanatory, dc1$itv, include.lowest = TRUE))
+    qv.matrix <- matrix(op.qv, n.itv, n.method, dimnames = list(discitv, discmethod))
+
+    opdisc.list <- list("method" = dmk, "n.itv" = nik, "itv" = dc1$itv,
+                        "x.itv" = x.itv, "qv.matrix" = qv.matrix, "discretization" = dc1)
+
   }
+  ### optimal discretization for multiple continuous variables
+  # debug: use lapply
+  optidisc.list <- lapply(1:ncolx, function(x) FunOpDisc(response[, 1], explanatory[, x], op.itv.method))
+  names(optidisc.list) <- variable
 
   ## define class
   class(optidisc.list) <- "optidisc"
@@ -102,77 +109,68 @@ print.optidisc <- function(x, ...){
     cat("\n")
     cat("intervals:\n", x[[i]]$itv)
     cat("\n")
-    cat("numbers of data within intervals:\n", x[[i]]$c.itv)
+    cat("numbers of data within intervals:\n", x[[i]]$x.itv)
     cat("\n\n")
   }
   invisible(x)
 }
 
 plot.optidisc <- function(x, ...){
-  discitv <- NA; value <- NA; variable <- NA
   # plot optimal discretization results
   lr <- length(x)
   names.result <- names(x)
-  plotoptidisc <- list()
 
-  for (i in 1:lr){
-    reshapedata <- melt(x[[i]]$OD, id="discitv")
-    rsd <- reshapedata[!is.na(reshapedata$value),]
-    if (nrow(rsd) < nrow(reshapedata)){
-      cat("One or several discretization results are removed, due to less than two data in a certain interval.\n\n")
-    }
-    plotoptidisc[[i]] <- ggplot(data=rsd,
-                    aes(x=discitv, y=value, colour=variable)) +
-      geom_line() +
-      geom_point() +
-      scale_x_continuous(name ="Number of intervals") +
-      scale_y_continuous(name ="Q value") +
-      scale_color_discrete(name = "Method") +
-      theme_bw()
+  if (lr == 1){
+    cols <- 1
+  } else if (lr > 1 & lr <= 4) {
+    cols <- 2
+  } else if (lr > 4 & lr <= 9) {
+    cols <- 3
+  } else {
+    cols <- 4
   }
+  rows <- ceiling(lr/cols)
+
   ### optimal discretization process
   cat("Optimal discretization process ...\n\n")
-  if (lr==1) {
-    print(plotoptidisc[[1]])
-  } else {
-    if (lr > 1 & lr <= 4) {
-      cols <- 2
-    } else if (lr > 4 & lr <= 9) {
-      cols <- 3
-    } else {
-      cols <- 4
-    }
-    layout <- t(matrix(seq(1, cols*ceiling(lr/cols)),
-                       ncol = ceiling(lr/cols), nrow = cols))
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-    for (i in 1:lr) {
-      index <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      print(plotoptidisc[[i]], vp = viewport(layout.pos.row = index$row,
-                                             layout.pos.col = index$col))
-    }
+  par(mfrow = c(rows, cols))
+  for (i in 1:lr){
+    qv.matrix <- x[[i]]$qv.matrix
+    # use matplot to simplify visualization
+    rname.qv <- rownames(qv.matrix)
+    cname.qv <- colnames(qv.matrix)
+    ncol.qv <- ncol(qv.matrix)
+    matplot(x = rname.qv, y = qv.matrix, type = "p",
+            pch = 1:ncol.qv - 1,
+            col = 1:ncol.qv + 1, main = names.result[i],
+            xaxt = "n", xlab = "Number of intervals", ylab = "Q value", las = 1)
+    axis(1, at = rname.qv, labels = rname.qv)
+    matlines(x = rname.qv, y = qv.matrix, type = "l",
+             lty = 1:ncol.qv,
+             col = 1:ncol.qv + 1)
+    # debug: use text to replace legend; use the first value !is.na to determine text location
+    text.location.x <- apply(qv.matrix, 2, function(x) rname.qv[which(!is.na(x))[1]])
+    text.location.y <- apply(qv.matrix, 2, function(x) x[!is.na(x)][1])
+    text.k <- which(!is.na(text.location.x))
+    text.location.x <- text.location.x[text.k]
+    text.location.y <- text.location.y[text.k]
+    text.pos <- ifelse(text.location.x == max(rname.qv), 2, 4)
+    text(x = text.location.x, y = text.location.y,
+         labels = cname.qv[text.k], pos = text.pos, col = c(1:ncol.qv)[text.k] + 1)
   }
+  par(mfrow = c(1, 1))
+
   ### optimal discretization results
   cat("Optimal discretization result ...\n\n")
-  if (lr==1) {
-    plot(x[[1]]$discretization)
-  } else {
-    if (lr > 1 & lr <= 4) {
-      cols <- 2
-    } else if (lr > 4 & lr <= 9) {
-      cols <- 3
-    } else {
-      cols <- 4
-    }
-    layout <- t(matrix(seq(1, cols*ceiling(lr/cols)),
-                       ncol = ceiling(lr/cols), nrow = cols))
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-    for (i in 1:lr) {
-      index <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      print(plot.disc(x[[i]]$discretization), vp = viewport(layout.pos.row = index$row,
-                                 layout.pos.col = index$col))
-    }
+  par(mfrow = c(rows, cols))
+  for (i in 1:lr){
+    var <- x[[i]]$discretization$var
+    # debug: use basic plot functions for histogram
+    hist(var, 30, col = "gray", border = "gray",
+         main = names.result[i], xlab = "Variable", las = 1)
+    abline(v = x[[i]]$discretization$itv, col = "red")
+    box()
   }
+  par(mfrow = c(1, 1))
 }
 

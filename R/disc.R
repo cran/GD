@@ -17,11 +17,10 @@
 #' @param x A list of \code{disc} result
 #' @param ... Ignore
 #'
-#' @importFrom stats na.omit quantile
-#' @importFrom ggplot2 ggplot aes geom_histogram theme_bw labs geom_vline
-#' @importFrom BAMMtools getJenksBreaks
+#' @importFrom stats na.omit quantile sd runif
+#' @importFrom graphics hist abline
 #'
-#' @examples 
+#' @examples
 #' ## method is default (quantile); number of intervals is 4
 #' ds1 <- disc(ndvi_40$Tempchange, 4)
 #' ds1
@@ -40,24 +39,76 @@ disc <- function(var, n, method = "quantile", ManualItv){
     warning("var has missing values, omitted in finding classes")
     var <- c(na.omit(var))
   }
-  if (method == "equal") {
-    itv <- seq(min(var), max(var), length.out = (n + 1))
-  } else if (method == "natural") {
-    itv <- getJenksBreaks(var, (n + 1))
-  } else if (method == "quantile") {
-    itv <- quantile(var, probs = seq(0, 1, length = n + 1))
-  } else if (method == "geometric") {
-    exponent <- function(a, pow) (abs(a)^pow)*sign(a)
-    if (min(var) == 0){
-      var <- var + 1
-      k <- exponent(max(var)/min(var), 1/n)
-      itv <- min(var)*(k^c(seq(n+1)-1))
-      itv <- itv - 1
-    } else {
-      k <- exponent(max(var)/min(var), 1/n)
-      itv <- min(var)*(k^c(seq(n+1)-1))
+
+  MethodEqual <- function(var, n){
+    seq(min(var), max(var), length.out = (n + 1))
+  }
+
+  MethodNatural <- function(var, n){ # debug: increase speed
+    ssd <- function(x) sum((x - mean(x))^2)
+    minvar <- min(var); maxvar <- max(var)
+    # set optional itv values to increase speed
+    options <- unique(sort(var))
+    size <- 1000
+    if (length(options) > size) {
+      options2 <- seq(minvar, maxvar, length = size)
+      count.options2 <- round(sqrt(table(cut(var, options2, include.lowest = TRUE))))
+      options <- unlist(sapply(1:(size - 1), function(x)
+        seq(options2[x], options2[x + 1], length = count.options2[x])))
+      options <- unique(options, maxvar)
     }
-  } else if (method == "sd") {
+    # set variable data as op.var: mean var within options
+    op.cut <- as.numeric(cut(var, options, include.lowest = TRUE))
+    op.var <- sapply(split(var, op.cut), mean)
+    # locations
+    locations <- sapply(1:1000, function(x) sort(sample(2:(length(options) - 1), n - 1, replace = F)))
+    locations <- unique(locations, MARGIN = 2)
+    lncol <- ncol(locations); lnrow <- nrow(locations)
+    # select best itv
+    options2 <- matrix(options[locations], lnrow, lncol)
+    itv0 <- rbind(rep(minvar, lncol), options2, rep(maxvar, lncol))
+    itv0.cut <- apply(itv0, 2, function(x) as.numeric(cut(op.var, x, include.lowest = TRUE)))
+    itv0.x <- apply(itv0.cut, 2, function(x) sum(sapply(split(op.var, x), ssd)))
+    min.tssd <- quantile(itv0.x, 0.1, na.rm = TRUE)
+    k <- which(itv0.x <= min.tssd)
+    itv <- as.matrix(itv0[, k]) # debug: ensure itv is a matrix
+    itv <- rowMeans(itv)
+    itv[1] <- minvar
+    return(itv)
+  }
+
+  MethodQuantile <- function(var, n){
+    quantile(var, probs = seq(0, 1, length = n + 1))
+  }
+
+  MethodGeometric <- function(var, n){
+    FunX <- function(x, n){
+      x1 <- x + 1
+      b <- (max(x1)/min(x1))^(1/(n - 1))
+      x0 <- min(x1)/b # debug: x1 = b * x0; xn = b^n * x0
+      x2 <- b^seq(n) * x0 - 1
+      return(x2)
+    }
+    if (min(var) >= 0){
+      itv <- FunX(var, n)
+    } else {
+      var.range <- abs(c(min(var), max(var)))
+      kmax <- which(var.range == max(var.range))
+      kmin <- c(1,2)[-kmax]
+      n2 <- floor((n + 1)/(1 + var.range[kmin]/var.range[kmax]))
+      n1 <- n + 1 - n2
+      itv1 <- FunX(c(0, var.range[kmin]), n1 + 1)[-1]
+      itv2 <- FunX(c(0, var.range[kmax]), n2 + 1)[-1]
+      if (kmin == 1){
+        itv <- c(-rev(itv1), itv2)
+      } else {
+        itv <- c(-rev(itv2), itv1)
+      }
+    }
+    return(itv)
+  }
+
+  MethodSd <- function(var, n){
     seqa <- seq(2000, 2, -2)
     itv <- c()
     m <- n
@@ -79,6 +130,19 @@ disc <- function(var, n, method = "quantile", ManualItv){
       itvb <- itvb[!duplicated(itvb)]
       itv <- c(min(var),itvb,max(var))
     }
+    return(itv)
+  }
+
+  if (method == "equal") {
+    itv <- MethodEqual(var, n)
+  } else if (method == "natural") {
+    itv <- MethodNatural(var, n)
+  } else if (method == "quantile") {
+    itv <- MethodQuantile(var, n)
+  } else if (method == "geometric") {
+    itv <- MethodGeometric(var, n)
+  } else if (method == "sd") {
+    itv <- MethodSd(var, n)
   } else if (method == "manual") {
     if (!is.null(ManualItv)){
       itv <- ManualItv
@@ -86,15 +150,9 @@ disc <- function(var, n, method = "quantile", ManualItv){
       warning("Input manual interval vector")
     }
   }
-  c.itv <- c()
-  for (u in 1:n){
-    if (u == 1){
-      c.itv[u] <- length(which(var>=itv[u] & var<=itv[u+1]))
-    } else {
-      c.itv[u] <- length(which(var>itv[u] & var<=itv[u+1]))
-    }
-  }
-  disc.list <- list("var"=var, "itv"=itv, "c.itv"=c.itv)
+
+  # debug: delete citv function
+  disc.list <- list("var" = var, "itv" = itv)
   ## define class
   class(disc.list) <- "disc"
   disc.list
@@ -102,19 +160,14 @@ disc <- function(var, n, method = "quantile", ManualItv){
 
 print.disc <- function(x, ...){
   cat("Intervals:\n", x$itv)
-  cat("\n")
-  cat("Numbers of data within intervals:\n", x$c.itv)
   invisible(x)
 }
 
 plot.disc <- function(x, ...){
   var <- x$var
-  var <- as.data.frame(var)
-  plotdisc <- ggplot(data=var, aes(var)) +
-    geom_histogram(breaks=seq(min(var), max(var), by = ((max(var) - min(var))/30))) +
-    theme_bw() +
-    labs(x = "variable", y = "Frequency") +
-    geom_vline(xintercept=x$itv, color = "red")
-  return(plotdisc)
+  # debug: use basic plot functions for histogram
+  hist(var, 30, col = "gray", border = "gray", main = NULL, xlab = "Variable", las = 1)
+  abline(v = x$itv, col = "red")
+  box()
 }
 

@@ -15,11 +15,8 @@
 #'
 #' @importFrom stats t.test
 #' @importFrom utils combn
-#' @importFrom ggplot2 ggplot aes geom_tile scale_fill_manual geom_text
-#' theme_bw xlab ylab theme scale_y_discrete
-#' @importFrom grid grid.newpage pushViewport viewport grid.layout
 #'
-#' @examples 
+#' @examples
 #' gr1 <- gdrisk(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 #' gr1
 #' plot(gr1)
@@ -32,71 +29,55 @@
 #' @export
 gdrisk <- function(formula, data = NULL){
   formula <- as.formula(formula)
-  response <- data[,colnames(data) == as.character(formula[[2]])]
-  if (formula[[3]]=="."){
-    explanatory <- data[,-which(colnames(data) == as.character(formula[[2]]))]
+  formula.vars <- all.vars(formula)
+  response <- subset(data, select = formula.vars[1]) # debug: use subset to select data
+  if (formula.vars[2] == "."){
+    explanatory <- subset(data, select = -match(formula.vars[1], colnames(data)))
   } else {
-    explanatory <- data[,match(all.vars(formula)[-1], colnames(data))]
+    explanatory <- subset(data, select = formula.vars[-1])
+  }
+  ncolx <- ncol(explanatory)
+
+  variable <- colnames(explanatory)
+
+  FunT.itv <- function(y1, y2){ # debug: use function
+    lengthy <- ifelse(length(y1) >= length(y2), length(y1), length(y2))
+
+    tt <- tryCatch({
+      t.test(y1,y2)
+    }, error = function(y1,y2){
+      data.frame("statistic" = 0,
+                 "parameter" = lengthy - 1,
+                 "p.value" = 1)
+    })
+
+    risk <- ifelse(tt$p.value < 0.05, "Y", "N")
+    risk <- factor(risk, levels = c("Y", "N"))
+
+    t.risk <- cbind(data.frame(t = tt$statistic, df = tt$parameter, sig = tt$p.value,
+                               row.names = c()), risk)
   }
 
-  if (typeof(explanatory)=="list"){
-    ncolx <- ncol(explanatory)
-    variable <- colnames(explanatory)
-  } else {
-    ncolx <- 1
-    variable <- c("var")
-  }
-
-  ny <- length(response)
-  # space for results
-  result <- list()
-
-  for (i in 1:ncolx){
-    if (typeof(explanatory)=="list"){
-      xi <- explanatory[,i]
-    } else {
-      xi <- explanatory
-    }
+  FunT.var <- function(y, x){ # debug: use function and lapply
     # t test by pairs
-    itv <- levels(factor(xi))
+    itv <- levels(factor(x))
     citv <- length(itv)
     tv <- as.data.frame(t(combn(itv,2)))
     names(tv) <- c("itv1","itv2")
-    tv$t <- NA; tv$df <- NA; tv$sig <- NA; tv$risk <- NA
-    for (j in 1:nrow(tv)){
-      y1 <- response[which(xi==as.character(tv$itv1[j]))]
-      y2 <- response[which(xi==as.character(tv$itv2[j]))]
-      if (length(y1) - length(y2) >= 0){
-        lengthy <- length(y1)
-      } else {
-        lengthy <- length(y2)
-      }
+    tv$itv1 <- factor(tv$itv1, levels = itv)
+    tv$itv2 <- factor(tv$itv2, levels = itv)
 
-      tt <- tryCatch({
-        t.test(y1,y2)
-      }, error = function(y1,y2){
-        data.frame("statistic"=0,
-                   "parameter"=c(lengthy-1),
-                   "p.value"=1)
-      })
+    t.var <- do.call(rbind, lapply(1:nrow(tv), function(u){
+      y1 <- y[x %in% as.character(tv[u, 1])]
+      y2 <- y[x %in% as.character(tv[u, 2])]
+      t.itv <- FunT.itv(y1, y2)
+    }))
 
-      tv[j,3] <- tt$statistic
-      tv[j,4] <- tt$parameter
-      tv[j,5] <- tt$p.value
-
-      if (tt$p.value < 0.05) {
-        tv[j,6] <- c("Y")
-      } else {
-        tv[j,6] <- c("N")
-      }
-    }
-    result[[i]] <- tv
+    tv <- cbind(tv, t.var)
   }
-  if (typeof(explanatory)=="list"){
-    names(result) <- c(variable)
-  } else {
-    names(result) <- c("var")
-  }
+
+  result <- lapply(1:ncolx, function(u) FunT.var(response[, 1], explanatory[, u]))
+  names(result) <- variable
 
   ## define class
   class(result) <- "gdrisk"
@@ -109,7 +90,7 @@ print.gdrisk <- function(x, ...){
   plotriskmatrix <- list()
   for (i in 1:lr){
     vec <- x[[i]]
-    riskmatrix <- v2m(vec$risk, diag=FALSE)
+    riskmatrix <- v2m(as.character(vec$risk), diag=FALSE)
     itvname <- c(as.character(vec$itv1),as.character(vec$itv2))
     interval <- itvname[!duplicated(itvname)]
 
@@ -129,51 +110,52 @@ print.gdrisk <- function(x, ...){
 plot.gdrisk <- function(x, ...){
   lr <- length(x)
   names.result <- names(x)
-  plotriskmatrix <- list()
+
+  if (lr == 1){
+    cols <- 1
+  } else if (lr > 1 & lr <= 4) {
+    cols <- 2
+  } else if (lr > 4 & lr <= 9) {
+    cols <- 3
+  } else {
+    cols <- 4
+  }
+  rows <- ceiling(lr/cols)
+
+  max.length.name <- max(sapply(x, function(x)
+    max(nchar(c(as.character(x$itv1),as.character(x$itv2))))))
+  mar.y <- max.length.name/4
+  par(mfrow = c(rows, cols), pty = "s", mar = c(2, mar.y + 3.1, 2, 2))
+
   for (i in 1:lr){
     vec <- x[[i]]
+    itvname <- unique(c(as.character(vec$itv1),as.character(vec$itv2)))
+    matrix.dim <- length(itvname)
 
-    riskmatrix <- v2m(vec$risk, diag=FALSE)
-    itvname <- c(as.character(vec$itv1),as.character(vec$itv2))
-    interval <- itvname[!duplicated(itvname)]
+    riskmatrix <- v2m(as.character(vec$risk), diag = FALSE)
+    riskmatrix <- t(riskmatrix[-1, -matrix.dim])
 
-    ## plot matrix
-    Ri <- c(riskmatrix)
-    ri1 <- rep(interval,each=length(interval))
-    ri2 <- rep(interval, length(interval))
-    Rm <- as.data.frame(cbind(ri1,ri2,Ri))
+    col.vector <- as.character(vec$risk)
+    col.vector <- ifelse(col.vector == "Y", "#FFA500", "#7FDBFF")
+    col.matrix <- v2m(col.vector, diag = FALSE)
+    col.matrix <- t(col.matrix[-1, -matrix.dim])
 
-    plotriskmatrix[[i]] <- ggplot(Rm, aes(x = ri1, y = ri2, fill = Ri)) +
-      geom_tile(colour = "white") +
-      scale_fill_manual(values = c("Y"="#FFA500","N"="#7FDBFF")) +
-      geom_text(aes(x = ri1, y = ri2,
-                    label = ifelse(is.na(Ri), "", paste(Ri))),
-                colour = "black", size = 4) +
-      theme_bw() +
-      xlab(names.result[i]) +
-      ylab(names.result[i]) +
-      theme(legend.position="none") +
-      scale_y_discrete(limits = rev(unique(sort(Rm$ri1))))
+    # debug: use plot to increase speed
+
+    # debug: adjust cex.size
+    cex.size <- ifelse(rows == cols, (40 - mar.y * cols)/(cols * (matrix.dim - 1)),
+                       (60 - mar.y * cols)/(rows * floor(cols/rows) * (matrix.dim - 1))) * 1.1
+    plot(row(riskmatrix), col(riskmatrix),
+         cex = cex.size, pch = 15, col = col.matrix,
+         xlim = c(0.5, (matrix.dim - 1) + 0.5), ylim = c(0.5, (matrix.dim - 1) + 0.5),
+         axes = FALSE, ann = FALSE, asp = 1)
+    axis(1, at = 1:(matrix.dim - 1), labels = unique(vec$itv1), tck = -0.025)
+    axis(2, at = 1:(matrix.dim - 1), labels = unique(vec$itv2), las = 1, tck = -0.025)
+    title(main = names.result[i])
+    text(row(riskmatrix), col(riskmatrix), labels = riskmatrix)
+    box()
   }
-  if (lr==1) {
-    print(plotriskmatrix[[1]])
-  } else {
-    if (lr > 1 & lr <= 4) {
-      cols <- 2
-    } else if (lr > 4 & lr <= 9) {
-      cols <- 3
-    } else {
-      cols <- 4
-    }
-    layout <- t(matrix(seq(1, cols*ceiling(lr/cols)),
-                       ncol = ceiling(lr/cols), nrow = cols))
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-    for (i in 1:lr) {
-      index <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      print(plotriskmatrix[[i]], vp = viewport(layout.pos.row = index$row,
-                                             layout.pos.col = index$col))
-    }
-  }
+
+  par(mfrow = c(1, 1), pty = "m", mar = c(5.1, 4.1, 4.1, 2.1))
 }
 

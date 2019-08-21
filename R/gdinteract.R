@@ -17,10 +17,9 @@
 #' @param ... Ignore
 #'
 #' @importFrom utils combn
-#' @importFrom ggplot2 ggplot aes geom_point scale_x_discrete scale_y_discrete
-#' theme_bw
+#' @importFrom graphics plot axis title legend text box
 #'
-#' @examples 
+#' @examples
 #' gi1 <- gdinteract(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 #' gi1
 #' \donttest{
@@ -32,53 +31,56 @@
 #' @export
 gdinteract <- function(formula, data = NULL){
   formula <- as.formula(formula)
-  response <- data[,colnames(data) == as.character(formula[[2]])]
-  if (formula[[3]]=="."){
-    explanatory <- data[,-which(colnames(data) == as.character(formula[[2]]))]
+  formula.vars <- all.vars(formula)
+  response <- subset(data, select = formula.vars[1]) # debug: use subset to select data
+  if (formula.vars[2] == "."){
+    explanatory <- subset(data, select = -match(formula.vars[1], colnames(data)))
   } else {
-    explanatory <- data[,match(all.vars(formula)[-1], colnames(data))]
+    explanatory <- subset(data, select = formula.vars[-1])
+  }
+  ncolx <- ncol(explanatory)
+
+  if (ncolx == 1){
+    stop("multiple explanatory variables are required for interaction detector")
   }
 
-  if (typeof(explanatory)=="list"){
-    ncolx <- ncol(explanatory)
-    variable <- colnames(explanatory)
-  } else {
-    warning("multiple explanatory variables are required for interaction detector")
-  }
-
+  variable <- colnames(explanatory)
   result <- as.data.frame(t(combn(variable,2)))
   names(result) <- c("var1","var2")
-  result$qv1 <- NA
-  result$qv2 <- NA
-  result$qv12 <- NA
-  result$interaction <- NA
-  for (u in 1:nrow(result)){
-    x1 <- explanatory[,which(variable==result$var1[u])]
-    x2 <- explanatory[,which(variable==result$var2[u])]
-    x12 <- stra2v(x1,x2)
-    response <- as.data.frame(response)
-    xxx <- as.data.frame(cbind(x1, x2, x12))
-    gddata <- cbind(response, xxx)
-    gd1 <- gd(response ~ x1, data = gddata)[[1]]
-    gd2 <- gd(response ~ x2, data = gddata)[[1]]
-    gd12 <- gd(response ~ x12, data = gddata)[[1]]
-    qv1 <- gd1$qv; qv2 <- gd2$qv; qv12 <- gd12$qv
-    result$qv1[u] <- gd1$qv
-    result$qv2[u] <- gd2$qv
-    result$qv12[u] <- gd12$qv
-    if (gd12$qv < min(gd1$qv, gd2$qv)) {
-      result$interaction[u] <- c("Weaken, nonlinear")
-    } else if (gd12$qv >= min(gd1$qv, gd2$qv) & gd12$qv <= max(gd1$qv, gd2$qv)) {
-        result$interaction[u] <- c("Weaken, uni-")
-    } else if (gd12$qv > max(gd1$qv, gd2$qv) & gd12$qv < gd1$qv + gd2$qv) {
-          result$interaction[u] <- c("Enhance, bi-")
-    } else if (gd12$qv == gd1$qv + gd2$qv) {
-            result$interaction[u] <- c("Independent")
+
+  y <- response[, 1]
+
+  FunI <- function(y, x1, x2){ # debug: simplify functions
+    x12 <- paste(x1, x2, sep = "_") # debug: remove stra2v function
+    gddata <- data.frame(y, x1, x2, x12)
+    qv1 <- gd(y ~ x1, data = gddata)[[1]]$qv
+    qv2 <- gd(y ~ x2, data = gddata)[[1]]$qv
+    qv12 <- gd(y ~ x12, data = gddata)[[1]]$qv
+
+    if (qv12 < min(qv1, qv2)) {
+      interaction <- c("Weaken, nonlinear")
+    } else if (qv12 >= min(qv1, qv2) & qv12 <= max(qv1, qv2)) {
+      interaction <- c("Weaken, uni-")
+    } else if (qv12 > max(qv1, qv2) & qv12 < qv1 + qv2) {
+      interaction <- c("Enhance, bi-")
+    } else if (qv12 == qv1 + qv2) {
+      interaction <- c("Independent")
     } else {
-      result$interaction[u] <- c("Enhance, nonlinear")
-      }
+      interaction <- c("Enhance, nonlinear")
+    }
+
+    qvi <- cbind(data.frame(qv1, qv2, qv12), interaction)
   }
-  result <- list("Interaction"=result)
+
+  # debug: use lapply to replace for loop
+  q.itr <- do.call(rbind, lapply(1:nrow(result), function(x){
+    x1 <- explanatory[,which(variable == result$var1[x])]
+    x2 <- explanatory[,which(variable == result$var2[x])]
+    itr <- FunI(y, x1, x2)
+  }))
+
+  result <- cbind(result, q.itr)
+  result <- list("Interaction" = result)
   ## define class
   class(result) <- "gdinteract"
   result
@@ -98,29 +100,44 @@ print.gdinteract <- function(x, ...){
 }
 
 plot.gdinteract <- function(x, ...){
-  var1 <- NA; var2 <- NA; qv12 <- NA
   resultdata <- x[[1]]
   if (nrow(resultdata)==1){
-    cat("At least three explanatory variables are required for visulizing interaction detector.\n")
+    stop("At least three explanatory variables are required for visulizing interaction detector.\n")
   } else {
-    varname <- c(as.character(resultdata$var1),as.character(resultdata$var2))
-    vars <- varname[!duplicated(varname)]
-    plot1 <- ggplot(resultdata, aes(x = var1, y = var2)) +
-      geom_point(aes(x = var1, y = var2, size = qv12, fill = interaction), shape = 21) +
-      scale_fill_manual(breaks = c("Enhance, nonlinear", "Independent", "Enhance, bi-",
-                                   "Weaken, uni-", "Weaken, nonlinear") ,
-                        values = c("Enhance, nonlinear"="#EA4848",
-                                   "Independent"="#E08338",
-                                   "Enhance, bi-"="#F2C55E",
-                                   "Weaken, uni-"="#6EE9EF",
-                                   "Weaken, nonlinear"="#558DE8")) +
-      geom_text(aes(x = var1, y = var2,
-                    label = ifelse(qv12==max(qv12, na.rm = TRUE), paste(format(qv12, digits=4)),"")),
-                colour = "black", size = 4) +
-      scale_x_discrete(limits=c(vars[1:(length(vars)-1)])) +
-      scale_y_discrete(limits=c(vars[length(vars):2])) +
-      theme_bw()
-    plot1
+    varname <- unique(c(as.character(resultdata$var1),as.character(resultdata$var2)))
+    matrix.dim <- length(varname)
+
+    qv.matrix <- v2m(resultdata$qv12, diag = FALSE)
+    qv.matrix <- t(qv.matrix[-1, -matrix.dim])
+
+    interact.type <- c("Enhance, nonlinear", "Independent", "Enhance, bi-",
+                       "Weaken, uni-", "Weaken, nonlinear")
+    interact.col <- c("#EA4848", "#E08338", "#F2C55E", "#6EE9EF", "#558DE8")
+    k.type <- match(as.character(resultdata$interaction), interact.type)
+    col.vector <- interact.col[k.type]
+
+    col.matrix <- v2m(col.vector, diag = FALSE)
+    col.matrix <- t(col.matrix[-1, -matrix.dim])
+
+    # debug: use plot to reduce time consumption
+    par(pty = "s") # debug: use par(pty = "s") and asp = 1 to set same axes scale
+    plot(row(qv.matrix), col(qv.matrix),
+         cex = qv.matrix * 5, pch = 20, col = col.matrix,
+         xlim = c(0.5, (matrix.dim - 1) + 0.5), ylim = c(0.5, (matrix.dim - 1) + 0.5),
+         axes = FALSE, ann = FALSE, asp = 1)
+    axis(1, at = 1:(matrix.dim - 1), labels = unique(resultdata$var1))
+    axis(2, at = 1:(matrix.dim - 1), labels = unique(resultdata$var2), las = 1)
+    title(xlab = "Variable")
+    lgd.point <- c(min(qv.matrix, na.rm = TRUE), mean(qv.matrix, na.rm = TRUE), max(qv.matrix, na.rm = TRUE))
+
+    k <- sort(unique(k.type))
+    legend("bottomright", c(sprintf("%.2f", round(lgd.point, digits = 2)), interact.type[k]),
+           col = c(rep("black", 3), interact.col[k]),
+           pch = 20, pt.cex = c(lgd.point * 5, 1, 1), cex = 0.8)
+    k.maxq <- which(qv.matrix == max(qv.matrix, na.rm = TRUE), arr.ind = TRUE)
+    text(x = k.maxq[1], y = k.maxq[2], labels = round(qv.matrix[k.maxq], digits = 4))
+    box()
+    par(pty = "m")
   }
 }
 

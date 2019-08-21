@@ -12,7 +12,7 @@
 
 <meta name="author" content="Yongze Song" />
 
-<meta name="date" content="2018-07-02" />
+<meta name="date" content="2019-08-21" />
 
 <title>Geographical Detectors for Spatial Stratified Heterogeneity Analysis</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Geographical Detectors for Spatial Stratified Heterogeneity Analysis</h1>
 <h4 class="author"><em>Yongze Song</em></h4>
-<h4 class="date"><em>2018-07-02</em></h4>
+<h4 class="date"><em>2019-08-21</em></h4>
 
 
 
@@ -95,7 +95,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>Categorical variables are required for geographical detectors, so continuous variables should be discretized before modelling. <strong>GD</strong> package provides two options: discretization with given parameters, including discretization methods and numbers of intervals, and optimal discretization with a series of optional parameter combinations. Dataset <code>ndvi_40</code> is used as an example for explanation.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;GD&quot;</span>)
 <span class="kw">data</span>(<span class="st">&quot;ndvi_40&quot;</span>)
-<span class="kw">head</span>(ndvi_40)[<span class="dv">1</span>:<span class="dv">3</span>,]
+<span class="kw">head</span>(ndvi_<span class="dv">40</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>,]
 <span class="co">#&gt;   NDVIchange Climatezone Mining Tempchange Precipitation   GDP Popdensity</span>
 <span class="co">#&gt; 1    0.11599         Bwk    low    0.25598        236.54 12.55    1.44957</span>
 <span class="co">#&gt; 2    0.01783         Bwk    low    0.27341        213.55  2.69    0.80124</span>
@@ -103,7 +103,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="discretization-with-given-parameters-disc" class="section level3">
 <h3>Discretization with given parameters: <code>disc</code></h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## discretization methods: equal, natural, quantile (default), geometric, sd and manual
-ds1 &lt;-<span class="st"> </span><span class="kw">disc</span>(ndvi_40$Tempchange, <span class="dv">4</span>)
+ds1 &lt;-<span class="st"> </span><span class="kw">disc</span>(ndvi_<span class="dv">40</span><span class="op">$</span>Tempchange, <span class="dv">4</span>)
 ds1
 <span class="kw">plot</span>(ds1)</code></pre></div>
 <p>Further information can be found on the <a href="https://CRAN.R-project.org/package=GD">manual</a> of <strong>GD</strong> package.</p>
@@ -112,10 +112,9 @@ ds1
 <h3>Optimal discretization: <code>optidisc</code></h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## set optional discretization methods and numbers of intervals
 discmethod &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;equal&quot;</span>,<span class="st">&quot;natural&quot;</span>,<span class="st">&quot;quantile&quot;</span>,<span class="st">&quot;geometric&quot;</span>,<span class="st">&quot;sd&quot;</span>)
-discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">3</span>:<span class="dv">7</span>)
+discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">4</span><span class="op">:</span><span class="dv">7</span>)
 ## optimal discretization
-odc1 &lt;-<span class="st"> </span><span class="kw">optidisc</span>(<span class="dt">continuous_variable =</span> ndvi_40$Tempchange, 
-                 <span class="dt">response_variable =</span> ndvi_40$NDVIchange, 
+odc1 &lt;-<span class="st"> </span><span class="kw">optidisc</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Tempchange, <span class="dt">data =</span> ndvi_<span class="dv">40</span>,
                  discmethod, discitv)
 odc1
 <span class="kw">plot</span>(odc1)</code></pre></div>
@@ -127,19 +126,14 @@ odc1
 <div id="a-one-step-function-gdm" class="section level3">
 <h3>A one-step function: <code>gdm</code></h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## NDVI: ndvi_40
-## define elements orders of categorical variables
-cz &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Bwk&quot;</span>,<span class="st">&quot;Bsk&quot;</span>,<span class="st">&quot;Dwa&quot;</span>,<span class="st">&quot;Dwb&quot;</span>,<span class="st">&quot;Dwc&quot;</span>) ## climate zone
-mp &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;very low&quot;</span>,<span class="st">&quot;low&quot;</span>,<span class="st">&quot;medium&quot;</span>,<span class="st">&quot;high&quot;</span>,<span class="st">&quot;very high&quot;</span>) ## mining production
-ndvi_40$Climatezone &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="dv">1</span>:<span class="dv">5</span>)[<span class="kw">match</span>(ndvi_40$Climatezone, cz)]
-ndvi_40$Mining &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="dv">1</span>:<span class="dv">5</span>)[<span class="kw">match</span>(ndvi_40$Mining, mp)]
 ## set optional parameters of optimal discretization
 ## optional methods: equal, natural, quantile, geometric, sd and manual
 discmethod &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;equal&quot;</span>,<span class="st">&quot;natural&quot;</span>,<span class="st">&quot;quantile&quot;</span>)
-discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">4</span>:<span class="dv">6</span>)
+discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">4</span><span class="op">:</span><span class="dv">6</span>)
 ## &quot;gdm&quot; function
-ndvigdm &lt;-<span class="st"> </span><span class="kw">gdm</span>(NDVIchange ~<span class="st"> </span>Climatezone +<span class="st"> </span>Mining +<span class="st"> </span>Tempchange +<span class="st"> </span>GDP,
+ndvigdm &lt;-<span class="st"> </span><span class="kw">gdm</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone <span class="op">+</span><span class="st"> </span>Mining <span class="op">+</span><span class="st"> </span>Tempchange <span class="op">+</span><span class="st"> </span>GDP,
                <span class="dt">continuous_variable =</span> <span class="kw">c</span>(<span class="st">&quot;Tempchange&quot;</span>, <span class="st">&quot;GDP&quot;</span>),
-               <span class="dt">data =</span> ndvi_40,
+               <span class="dt">data =</span> ndvi_<span class="dv">40</span>,
                <span class="dt">discmethod =</span> discmethod, <span class="dt">discitv =</span> discitv)
 ndvigdm
 <span class="kw">plot</span>(ndvigdm)
@@ -147,12 +141,12 @@ ndvigdm
 ## H1N1: h1n1_100
 ## set optional parameters of optimal discretization
 discmethod &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;equal&quot;</span>,<span class="st">&quot;natural&quot;</span>,<span class="st">&quot;quantile&quot;</span>,<span class="st">&quot;geometric&quot;</span>,<span class="st">&quot;sd&quot;</span>)
-discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">3</span>:<span class="dv">7</span>)
-continuous_variable &lt;-<span class="st"> </span><span class="kw">colnames</span>(h1n1_100)[-<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">11</span>)]
+discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">3</span><span class="op">:</span><span class="dv">7</span>)
+continuous_variable &lt;-<span class="st"> </span><span class="kw">colnames</span>(h1n1_<span class="dv">100</span>)[<span class="op">-</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">11</span>)]
 ## &quot;gdm&quot; function
-h1n1gdm &lt;-<span class="st"> </span><span class="kw">gdm</span>(H1N1 ~<span class="st"> </span>.,
+h1n1gdm &lt;-<span class="st"> </span><span class="kw">gdm</span>(H1N1 <span class="op">~</span><span class="st"> </span>.,
                <span class="dt">continuous_variable =</span> continuous_variable,
-               <span class="dt">data =</span> h1n1_100,
+               <span class="dt">data =</span> h1n1_<span class="dv">100</span>,
                <span class="dt">discmethod =</span> discmethod, <span class="dt">discitv =</span> discitv)
 h1n1gdm
 <span class="kw">plot</span>(h1n1gdm)</code></pre></div>
@@ -160,25 +154,27 @@ h1n1gdm
 <div id="factor-detector-gd" class="section level3">
 <h3>Factor detector: <code>gd</code></h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## a categorical explanatory variable
-g1 &lt;-<span class="st"> </span><span class="kw">gd</span>(NDVIchange ~<span class="st"> </span>Climatezone, <span class="dt">data =</span> ndvi_40)
+g1 &lt;-<span class="st"> </span><span class="kw">gd</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone, <span class="dt">data =</span> ndvi_<span class="dv">40</span>)
 g1
 
 ## multiple categorical explanatory variables
-g2 &lt;-<span class="st"> </span><span class="kw">gd</span>(NDVIchange ~<span class="st"> </span>., <span class="dt">data =</span> ndvi_40[,<span class="dv">1</span>:<span class="dv">3</span>])
+g2 &lt;-<span class="st"> </span><span class="kw">gd</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> ndvi_<span class="dv">40</span>[,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>])
 g2
 <span class="kw">plot</span>(g2)
 
 ## multiple variables inclusing continuous variables
 discmethod &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;equal&quot;</span>,<span class="st">&quot;natural&quot;</span>,<span class="st">&quot;quantile&quot;</span>,<span class="st">&quot;geometric&quot;</span>,<span class="st">&quot;sd&quot;</span>)
-discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">3</span>:<span class="dv">7</span>)
-data_ndvi &lt;-<span class="st"> </span>ndvi_40
-odc1 &lt;-<span class="st"> </span><span class="kw">optidisc</span>(<span class="dt">continuous_variable =</span> data_ndvi[,<span class="dv">4</span>:<span class="dv">7</span>], 
-                 <span class="dt">response_variable =</span> data_ndvi$NDVIchange, 
-                 discmethod, discitv)
-for (i in <span class="dv">4</span>:<span class="dv">7</span>){
-  data_ndvi[,i] &lt;-<span class="st"> </span><span class="kw">stra</span>(data_ndvi[,i], odc1[[i<span class="dv">-3</span>]]$itv)
-}
-g3 &lt;-<span class="st"> </span><span class="kw">gd</span>(NDVIchange ~<span class="st"> </span>., <span class="dt">data =</span> data_ndvi)
+discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">3</span><span class="op">:</span><span class="dv">7</span>)
+data.ndvi &lt;-<span class="st"> </span>ndvi_<span class="dv">40</span>
+
+data.continuous &lt;-<span class="st"> </span>data.ndvi[, <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">4</span><span class="op">:</span><span class="dv">7</span>)]
+odc1 &lt;-<span class="st"> </span><span class="kw">optidisc</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> data.continuous, discmethod, discitv)
+data.continuous &lt;-<span class="st"> </span><span class="kw">do.call</span>(cbind, <span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="cf">function</span>(x)
+  <span class="kw">data.frame</span>(<span class="kw">cut</span>(data.continuous[, <span class="op">-</span><span class="dv">1</span>][, x], <span class="kw">unique</span>(odc1[[x]]<span class="op">$</span>itv), <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>))))
+    <span class="co"># add stratified data to explanatory variables</span>
+data.ndvi[, <span class="dv">4</span><span class="op">:</span><span class="dv">7</span>] &lt;-<span class="st"> </span>data.continuous
+
+g3 &lt;-<span class="st"> </span><span class="kw">gd</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> data.ndvi)
 g3
 <span class="kw">plot</span>(g3)</code></pre></div>
 </div>
@@ -186,62 +182,55 @@ g3
 <h3>Risk detector: <code>riskmean</code> and <code>gdrisk</code></h3>
 <p>Risk mean values by variables:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## categorical explanatory variables
-rm1 &lt;-<span class="st"> </span><span class="kw">riskmean</span>(NDVIchange ~<span class="st"> </span>Climatezone +<span class="st"> </span>Mining, <span class="dt">data =</span> ndvi_40)
+rm1 &lt;-<span class="st"> </span><span class="kw">riskmean</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone <span class="op">+</span><span class="st"> </span>Mining, <span class="dt">data =</span> ndvi_<span class="dv">40</span>)
 rm1
 <span class="kw">plot</span>(rm1)
 ## multiple variables inclusing continuous variables
-rm3 &lt;-<span class="st"> </span><span class="kw">riskmean</span>(NDVIchange ~<span class="st"> </span>., <span class="dt">data =</span> data_ndvi)
-rm3
-<span class="kw">plot</span>(rm3)</code></pre></div>
+rm2 &lt;-<span class="st"> </span><span class="kw">riskmean</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> data.ndvi)
+rm2
+<span class="kw">plot</span>(rm2)</code></pre></div>
 <p>Risk matrix:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## categorical explanatory variables
-gr1 &lt;-<span class="st"> </span><span class="kw">gdrisk</span>(NDVIchange ~<span class="st"> </span>Climatezone +<span class="st"> </span>Mining, <span class="dt">data =</span> ndvi_40)
+gr1 &lt;-<span class="st"> </span><span class="kw">gdrisk</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone <span class="op">+</span><span class="st"> </span>Mining, <span class="dt">data =</span> ndvi_<span class="dv">40</span>)
 gr1
 <span class="kw">plot</span>(gr1)
 ## multiple variables inclusing continuous variables
-gd3 &lt;-<span class="st"> </span><span class="kw">gdrisk</span>(NDVIchange ~<span class="st"> </span>., <span class="dt">data =</span> data_ndvi)
-gd3
-<span class="kw">plot</span>(gd3)</code></pre></div>
+gr2 &lt;-<span class="st"> </span><span class="kw">gdrisk</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> data.ndvi)
+gr2
+<span class="kw">plot</span>(gr2)</code></pre></div>
 </div>
 <div id="interaction-detector-gdinteract" class="section level3">
 <h3>Interaction detector: <code>gdinteract</code></h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## categorical explanatory variables
-gi1 &lt;-<span class="st"> </span><span class="kw">gdinteract</span>(NDVIchange ~<span class="st"> </span>Climatezone +<span class="st"> </span>Mining, <span class="dt">data =</span> ndvi_40)
+gi1 &lt;-<span class="st"> </span><span class="kw">gdinteract</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone <span class="op">+</span><span class="st"> </span>Mining, <span class="dt">data =</span> ndvi_<span class="dv">40</span>)
 gi1
 ## multiple variables inclusing continuous variables
-gi3 &lt;-<span class="st"> </span><span class="kw">gdinteract</span>(NDVIchange ~<span class="st"> </span>., <span class="dt">data =</span> data_ndvi)
-gi3
-<span class="kw">plot</span>(gi3)</code></pre></div>
+gi2 &lt;-<span class="st"> </span><span class="kw">gdinteract</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> data.ndvi)
+gi2
+<span class="kw">plot</span>(gi2)</code></pre></div>
 </div>
 <div id="ecological-detector-gdeco" class="section level3">
 <h3>Ecological detector: <code>gdeco</code></h3>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## categorical explanatory variables
-ge1 &lt;-<span class="st"> </span><span class="kw">gdeco</span>(NDVIchange ~<span class="st"> </span>Climatezone +<span class="st"> </span>Mining, <span class="dt">data =</span> ndvi_40)
+ge1 &lt;-<span class="st"> </span><span class="kw">gdeco</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone <span class="op">+</span><span class="st"> </span>Mining, <span class="dt">data =</span> ndvi_<span class="dv">40</span>)
 ge1
 ## multiple variables inclusing continuous variables
-gd3 &lt;-<span class="st"> </span><span class="kw">gdeco</span>(NDVIchange ~<span class="st"> </span>., <span class="dt">data =</span> data_ndvi)
+gd3 &lt;-<span class="st"> </span><span class="kw">gdeco</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> data.ndvi)
 gd3
 <span class="kw">plot</span>(gd3)</code></pre></div>
 </div>
 </div>
 <div id="comparison-of-size-effects-of-spatial-unit" class="section level2">
 <h2>Comparison of size effects of spatial unit</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ndvilist &lt;-<span class="st"> </span><span class="kw">list</span>(ndvi_10, ndvi_20, ndvi_30, ndvi_40, ndvi_50)
-su &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">10</span>,<span class="dv">20</span>,<span class="dv">30</span>,<span class="dv">40</span>,<span class="dv">50</span>) ## sizes of spatial units
-gdlist &lt;-<span class="st"> </span><span class="kw">list</span>() ## list of all geographical detectors results
-## set optional parameters of optimal discretization
-discmethod &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;equal&quot;</span>,<span class="st">&quot;natural&quot;</span>,<span class="st">&quot;quantile&quot;</span>,<span class="st">&quot;geometric&quot;</span>,<span class="st">&quot;sd&quot;</span>)
-discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">3</span>:<span class="dv">7</span>)
-## &quot;gdm&quot; function (~ 40s)
-for (i in <span class="dv">1</span>:<span class="kw">length</span>(su)){
-  ndvidata &lt;-<span class="st"> </span>ndvilist[[i]]
-  gdlist[[i]] &lt;-<span class="st"> </span><span class="kw">gdm</span>(NDVIchange ~<span class="st"> </span>.,
-                     <span class="dt">continuous_variable =</span> <span class="kw">c</span>(<span class="st">&quot;Tempchange&quot;</span>, <span class="st">&quot;Precipitation&quot;</span>, <span class="st">&quot;GDP&quot;</span>, <span class="st">&quot;Popdensity&quot;</span>),
-                     <span class="dt">data =</span> ndvidata,
-                     <span class="dt">discmethod =</span> discmethod, <span class="dt">discitv =</span> discitv)
-}
-## size effects of spatial units
-<span class="kw">sesu</span>(gdlist, su) </code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ndvilist &lt;-<span class="st"> </span><span class="kw">list</span>(ndvi_<span class="dv">20</span>, ndvi_<span class="dv">30</span>, ndvi_<span class="dv">40</span>, ndvi_<span class="dv">50</span>)
+su &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>,<span class="dv">30</span>,<span class="dv">40</span>,<span class="dv">50</span>) ## sizes of spatial units
+## &quot;gdm&quot; function
+gdlist &lt;-<span class="st"> </span><span class="kw">lapply</span>(ndvilist, <span class="cf">function</span>(x){
+  <span class="kw">gdm</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone <span class="op">+</span><span class="st"> </span>Mining <span class="op">+</span><span class="st"> </span>Tempchange <span class="op">+</span><span class="st"> </span>GDP,
+      <span class="dt">continuous_variable =</span> <span class="kw">c</span>(<span class="st">&quot;Tempchange&quot;</span>, <span class="st">&quot;GDP&quot;</span>),
+      <span class="dt">data =</span> x, <span class="dt">discmethod =</span> <span class="st">&quot;quantile&quot;</span>, <span class="dt">discitv =</span> <span class="dv">6</span>)
+})
+<span class="kw">sesu</span>(gdlist, su) ## size effects of spatial units</code></pre></div>
 </div>
 <div id="reference" class="section level2">
 <h2>Reference</h2>
