@@ -1,21 +1,47 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ------------------------------------------------------------------------
+## ----echo=FALSE, results="hide", message=FALSE--------------------------------
+library("badger")
+
+## ---- echo = FALSE, results='asis'--------------------------------------------
+cat(
+	badge_cran_release("GD", "orange"),
+	badge_cran_download("GD", "grand-total", "blue"),
+	badge_cran_download("GD", "last-month", "yellow"),
+	badger::badge_custom("Publication doi", "10.1080/15481603.2020.1760434", "green", "https://doi.org/10.1080/15481603.2020.1760434")
+)
+
+## ---- echo = FALSE, results='asis'--------------------------------------------
+cat(
+  "`GD`",
+	badge_cran_download("GD", "grand-total", "orange"),
+  "`SK`",
+	badge_cran_download("SK", "grand-total", "blue"),
+	"`EDA`",
+	badge_cran_download("EDA", "grand-total", "yellow"),
+	"`HS`",
+	badge_cran_download("HS", "grand-total", "green")
+)
+
+## ---- eval = FALSE------------------------------------------------------------
+#  install.packages("GD")
+
+## -----------------------------------------------------------------------------
 library("GD")
 data("ndvi_40")
 head(ndvi_40)[1:3,]
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  ## discretization methods: equal, natural, quantile (default), geometric, sd and manual
 #  ds1 <- disc(ndvi_40$Tempchange, 4)
 #  ds1
 #  plot(ds1)
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  ## set optional discretization methods and numbers of intervals
 #  discmethod <- c("equal","natural","quantile","geometric","sd")
 #  discitv <- c(4:7)
@@ -25,7 +51,7 @@ head(ndvi_40)[1:3,]
 #  odc1
 #  plot(odc1)
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  ## NDVI: ndvi_40
 #  ## set optional parameters of optimal discretization
 #  ## optional methods: equal, natural, quantile, geometric, sd and manual
@@ -34,7 +60,7 @@ head(ndvi_40)[1:3,]
 #  ## "gdm" function
 #  ndvigdm <- gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
 #                 continuous_variable = c("Tempchange", "GDP"),
-#                 data = ndvi_40,
+#                 data = ndvi_20,
 #                 discmethod = discmethod, discitv = discitv)
 #  ndvigdm
 #  plot(ndvigdm)
@@ -52,7 +78,7 @@ head(ndvi_40)[1:3,]
 #  h1n1gdm
 #  plot(h1n1gdm)
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  ## a categorical explanatory variable
 #  g1 <- gd(NDVIchange ~ Climatezone, data = ndvi_40)
 #  g1
@@ -78,7 +104,7 @@ head(ndvi_40)[1:3,]
 #  g3
 #  plot(g3)
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  ## categorical explanatory variables
 #  rm1 <- riskmean(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 #  rm1
@@ -88,7 +114,7 @@ head(ndvi_40)[1:3,]
 #  rm2
 #  plot(rm2)
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  ## categorical explanatory variables
 #  gr1 <- gdrisk(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 #  gr1
@@ -98,7 +124,7 @@ head(ndvi_40)[1:3,]
 #  gr2
 #  plot(gr2)
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  ## categorical explanatory variables
 #  gi1 <- gdinteract(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 #  gi1
@@ -107,7 +133,7 @@ head(ndvi_40)[1:3,]
 #  gi2
 #  plot(gi2)
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  ## categorical explanatory variables
 #  ge1 <- gdeco(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 #  ge1
@@ -116,7 +142,7 @@ head(ndvi_40)[1:3,]
 #  gd3
 #  plot(gd3)
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  ndvilist <- list(ndvi_20, ndvi_30, ndvi_40, ndvi_50)
 #  su <- c(20,30,40,50) ## sizes of spatial units
 #  ## "gdm" function

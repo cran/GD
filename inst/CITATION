@@ -1,26 +1,12 @@
 citHeader("To cite GD Package in publications use:")
 
-year <- sub("-.*", "", meta$Date)
-note <- sprintf("R package version %s", meta$Version)
-
-bibentry(
- bibtype="Manual",
- title="{GD}: Geographical Detectors",
- author="Yongze Song",
- year=year,
- note=note,
- url="https://CRAN.R-project.org/package=GD")
-
 bibentry(
  bibtype="Article",
- title="Geographical Detectors-Based Health Risk Assessment and its Application in the Neural Tube Defects Study of the Heshun Region, China",
- journal="International Journal of Geographical Information Science",
- volume= "24",
- number="1",
- pages="107-127",
- year="2010",
- author="Jinfeng Wang and Xinhu Li and George Christakos and Yilan Liao and Tin Zhang and Xue Gu and Xiaoying Zheng",
- doi="10.1080/13658810802443457")
+ title="An optimal parameters-based geographical detector model enhances geographic characteristics of explanatory variables for spatial heterogeneity analysis: Cases with different types of spatial data",
+ journal="GIScience & Remote Sensing",
+ year="2020",
+ author="Yongze Song and Jinfeng Wang and Yong Ge and Chengdong Xu",
+ doi="10.1080/15481603.2020.1760434")
 
 bibentry(
  bibtype="Article",
@@ -34,9 +20,11 @@ bibentry(
 
 bibentry(
  bibtype="Article",
- title="Traffic Volume Prediction With Segment-Based Regression Kriging and its Implementation in Assessing the Impact of Heavy Vehicles",
- journal="IEEE Transactions on Intelligent Transportation Systems",
- pages="1-12",
- year="2018",
- author="Yongze Song and Xiangyu Wang and Graeme Wright and Dominique Thatcher and Peng Wu and Pascal Felix",
- doi="10.1109/TITS.2018.2805817")
+ title="Geographical Detectors-Based Health Risk Assessment and its Application in the Neural Tube Defects Study of the Heshun Region, China",
+ journal="International Journal of Geographical Information Science",
+ volume= "24",
+ number="1",
+ pages="107-127",
+ year="2010",
+ author="Jinfeng Wang and Xinhu Li and George Christakos and Yilan Liao and Tin Zhang and Xue Gu and Xiaoying Zheng",
+ doi="10.1080/13658810802443457")

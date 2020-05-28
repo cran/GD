@@ -52,6 +52,7 @@ optidisc <- function(formula, data,
   FunDiscQ <- function(y, x, f.method, f.itv){
     qv <- c()
     dc1 <- disc(x, f.itv, method = f.method)
+
     if (length(unique(dc1$itv)) != length(dc1$itv)){
       # remove duplicated intervals due to extremely bias data
       qv <- NA

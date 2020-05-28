@@ -1,8 +1,8 @@
 Package: GD
 Type: Package
 Title: Geographical Detectors
-Date: 2019-08-20
-Version: 1.7
+Date: 2020-05-28
+Version: 1.8
 Authors@R: person("Yongze Song", email = "yongze.song@postgrad.curtin.edu.au",
                   comment = c(ORCID = "0000-0003-3420-9622"),
                   role = c("aut", "cre"))
@@ -12,17 +12,18 @@ Description: Geographical detectors for measuring spatial stratified heterogenei
              Jinfeng Wang (2016) <doi:10.1016/j.ecolind.2016.02.052>. Includes the
              optimal discretization of continuous data, four primary functions of 
              geographical detectors, comparison of size effects of spatial unit and 
-             the visualizations of results. The descriptions of the package, methods
-             and case datasets refer to the citation information below.
-Imports: stats, utils, graphics
+             the visualizations of results. To use the package and to refer the 
+             descriptions of the package, methods and case datasets, please cite 
+             Yongze Song (2020) <doi:10.1080/15481603.2020.1760434>.
+Imports: stats, utils, graphics, badger
 Depends: R (>= 3.4.0)
 License: GPL-2
-RoxygenNote: 6.0.1
+RoxygenNote: 7.0.2
 LazyData: true
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2019-08-21 13:41:08 UTC; zack
+Packaged: 2020-05-28 15:11:01 UTC; zack
 Author: Yongze Song [aut, cre] (<https://orcid.org/0000-0003-3420-9622>)
 Repository: CRAN
-Date/Publication: 2019-08-21 14:10:05 UTC
+Date/Publication: 2020-05-28 16:00:02 UTC

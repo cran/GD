@@ -78,7 +78,19 @@ disc <- function(var, n, method = "quantile", ManualItv){
   }
 
   MethodQuantile <- function(var, n){
-    quantile(var, probs = seq(0, 1, length = n + 1))
+    itv <- quantile(var, probs = seq(0, 1, length = n + 1))
+    l0 <- length(unique(itv))
+    if (l0 < n + 1){
+      l1 <- l0
+      l2 <- l0
+      while(l2 < n + 1){
+        itv1 <- quantile(var, probs = seq(0, 1, length = l1 + 1))
+        l2 <- length(unique(itv1))
+        l1 <- l1 + 1
+      }
+      itv <- unique(itv1)
+    }
+    return(itv)
   }
 
   MethodGeometric <- function(var, n){
@@ -147,8 +159,10 @@ disc <- function(var, n, method = "quantile", ManualItv){
     if (!is.null(ManualItv)){
       itv <- ManualItv
     } else {
-      warning("Input manual interval vector")
+      warning("Input a manual interval vector")
     }
+  } else {
+    warning("Please select a discretization method")
   }
 
   # debug: delete citv function

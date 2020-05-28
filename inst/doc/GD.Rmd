@@ -1,12 +1,16 @@
 ---
-title: "Geographical Detectors for Spatial Stratified Heterogeneity Analysis"
+title: "Optimal Parameters-based Geographical Detectors"
 author: "Yongze Song"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Geographical Detectors for Spatial Stratified Heterogeneity Analysis}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output:
+  html_document:
+    self_contained: no
+  pdf_document: default
+vignette: > 
+  %\VignetteIndexEntry{Optimal Parameters-based Geographical Detectors}     
+  %\VignetteEncoding{UTF-8}\n
+  % \VignetteDepends{badger}
+  %\VignetteEngine{knitr::rmarkdown} \n
 ---
 
 ```{r setup, include = FALSE}
@@ -16,33 +20,131 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r echo=FALSE, results="hide", message=FALSE}
+library("badger")
+```
+
+&nbsp; 
+
+
+#### Latest version
+
+```{r, echo = FALSE, results='asis'}
+cat(
+	badge_cran_release("GD", "orange"),
+	badge_cran_download("GD", "grand-total", "blue"),
+	badge_cran_download("GD", "last-month", "yellow"),
+	badger::badge_custom("Publication doi", "10.1080/15481603.2020.1760434", "green", "https://doi.org/10.1080/15481603.2020.1760434")
+)
+```
+
+
+&nbsp; 
+
+### Citation for package `GD`
+
+To cite **"GD" R package** in publications, please use:
+
+**Song, Y., Wang, J., Ge, Y. & Xu, C. (2020) "An optimal parameters-based geographical detector model enhances geographic characteristics of explanatory variables for spatial heterogeneity analysis: Cases with different types of spatial data", *GIScience & Remote Sensing*.**
+`r badge_doi("10.1080/15481603.2020.1760434", "yellow")`
+
+&nbsp; 
+
+
+
+&nbsp; 
+
+
+###Authors’ affiliations
+
+#### Dr. Yongze Song
+
+[Google Scholar][6]
+
+Research interests: Spatial statistics, sustainable infrastructure
+
+Curtin University, Australia
+
+Email yongze.song@curtin.edu.au
+
+**Award:**
+
+**Global Peer Review Awards 2019: Top reviewers in Geosciences (top 1%) and in Cross-field (top 1%). **
+
+**R Packages:**
+
+```{r, echo = FALSE, results='asis'}
+cat(
+  "`GD`",
+	badge_cran_download("GD", "grand-total", "orange"),
+  "`SK`",
+	badge_cran_download("SK", "grand-total", "blue"),
+	"`EDA`",
+	badge_cran_download("EDA", "grand-total", "yellow"),
+	"`HS`",
+	badge_cran_download("HS", "grand-total", "green")
+)
+```
+
+
+&nbsp; 
+
+&nbsp; 
+
+## Introduction to `GD` package
+
 Spatial stratified heterogeneity can be measured using geographical detectors ([Wang et al. 2010][2], [Wang et al. 2016][3]). 
 
-**GD** package consists of four parts:
+Power of determinants is computed using a $Q$-statistic:
 
-- the optimal discretization of continuous data; 
+$$Q=1-\displaystyle \frac{\sum_{j=1}^{M} N_{j} \sigma_{j}^2}{N \sigma^2} $$
 
-- four primary functions of geographical detectors, including factor detector, risk detector, interaction detector and ecological detector;
+where $N$ and $\sigma^2$ are the number and population variance of observations within the whole study area, and $N_{j}$ and $\sigma_{j}^2$ are the number and population variance of observations within the $j$th ($j$=1,…,$M$) sub-region of an explantory variable. 
 
-- comparison of size effects of spatial unit;
+**Please note that in `R` environment, `sd` and `var` functions are used for computing sample standard deviation and sample variance.** If sample variance is used in the computation, the equation of $Q$-statistic can be converted to:
 
-- visualizations of results. 
+$$Q=1-\displaystyle \frac{\sum_{j=1}^{M} (N_{j}-1) s_{j}^2}{(N-1) s^2} $$
 
-**GD** package includes three datasets:
+where $s^2$ and $s_{j}^2$ are sample variance of observations in the whole study area and in the $j$th sub-region. 
 
-- `NDVI` (`ndvi_5`, `ndvi_10`, `ndvi_20`, `ndvi_30`, `ndvi_40` and `ndvi_50`): spatial data of vegetation changes `NDVI` with six sizes of grids, 5 km, 10 km, 20 km, 30 km, 40 km and 50 km;
+![**Figure 1**. Overview of global research using geographical detector model (*cumulative citations were updated on June 2020*). ([Song et al. 2020][7])](Figure1.png){width=450px}
 
-- `H1N1` (`h1n1_50`, `h1n1_100` and `h1n1_150`): spatial data of influenza A virus subtype H1N1 incidences with the spatial grid sizes of 50 km, 100 km and 150 km;
+### The model can be used to address following issues:
 
-- `road_GD`: line segment based spatial data of road conditions ([Song et al. 2018][4]).
+- Explore potential factors or explanatory variables from a spatial perspective.
+
+- Explore potential interactive impacts of geogrpahical variables.
+
+- Identify high-risk or low-risk regions from potential explanatory variables. 
+
+### The **`GD` package** makes following steps fast and easy:
+
+- It contains both supervised and unsupervised spatial data discretization methods, and the optimal spatial discretization method for continuous variables; 
+
+- It contains four primary functions of geographical detectors, including factor detector, risk detector, interaction detector and ecological detector;
+
+- It can be used to compare size effects of spatial unit;
+
+- It provides diverse visualizations of spatial analysis results;
+
+- It contains detailed significance tests for spatial analysis in each step of geographical detectors. 
+
+![**Figure 2**. General calculation process and relationships of functions in GD package ([Song et al. 2020][7])](Figure2.png){width=600px}
 
 Further information can be found on the [manual][1] of **GD** package.
 
 More applications of geographical detectors are listed on [Geodetector website][5].
 
+&nbsp;
+&nbsp;
+
 ## Discretization and optimal discretization
 
 Categorical variables are required for geographical detectors, so continuous variables should be discretized before modelling. **GD** package provides two options: discretization with given parameters, including discretization methods and numbers of intervals, and optimal discretization with a series of optional parameter combinations. Dataset `ndvi_40` is used as an example for explanation.
+
+```{r, eval = FALSE}
+install.packages("GD")
+```
 
 ```{r}
 library("GD")
@@ -74,13 +176,19 @@ odc1
 plot(odc1)
 ```
 
-## Geographical detectors
+
+![**Figure 3**. Process and results of optimal spatial data discretization](Figure3.png){width=600px}
+
+
+## (Optimal Parameters-based) Geographical Detectors
 
 **GD** package provides two options for geographical detectors modelling:
-* four functions are performed step by step: `gd` for factor detector, `riskmean` and `gdrisk` for risk detector, `gdinteract` for interaction detector and `gdeco` for ecological detector;
-* optimal discretization and geographical detectors are performed using a one-step function `gdm`.
 
-### A one-step function: `gdm`
+- four functions are performed step by step: `gd` for factor detector, `riskmean` and `gdrisk` for risk detector, `gdinteract` for interaction detector and `gdeco` for ecological detector;
+
+- optimal discretization and geographical detectors are performed using a one-step function `gdm`. 
+
+### A one-step function: `gdm` (*Highly Recommended*)
 
 ```{r, eval = FALSE}
 ## NDVI: ndvi_40
@@ -91,7 +199,7 @@ discitv <- c(4:6)
 ## "gdm" function
 ndvigdm <- gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
                continuous_variable = c("Tempchange", "GDP"),
-               data = ndvi_40,
+               data = ndvi_20,
                discmethod = discmethod, discitv = discitv)
 ndvigdm
 plot(ndvigdm)
@@ -139,6 +247,10 @@ g3
 plot(g3)
 ```
 
+
+![**Figure 4**. Results of factor detector](Figure4.png){width=300px}
+
+
 ### Risk detector: `riskmean` and `gdrisk`
 
 Risk mean values by variables:
@@ -167,6 +279,10 @@ gr2
 plot(gr2)
 ```
 
+
+![**Figure 5**. Results of risk detector](Figure5.png){width=500px}
+
+
 ### Interaction detector: `gdinteract`
 
 ```{r, eval = FALSE}
@@ -179,6 +295,9 @@ gi2
 plot(gi2)
 ```
 
+![**Figure 6**. Results of interaction detector](Figure6.png){width=400px}
+
+
 ### Ecological detector: `gdeco`
 
 ```{r, eval = FALSE}
@@ -190,6 +309,10 @@ gd3 <- gdeco(NDVIchange ~ ., data = data.ndvi)
 gd3
 plot(gd3)
 ```
+
+
+![**Figure 7**. Results of ecological detector](Figure7.png){width=300px}
+
 
 ## Comparison of size effects of spatial unit
 
@@ -205,28 +328,37 @@ gdlist <- lapply(ndvilist, function(x){
 sesu(gdlist, su) ## size effects of spatial units
 ```
 
+
+![**Figure 8**. Spatial scale effects](Figure8.png){width=350px}
+
+&nbsp; 
+
 ## Reference
 
-Song Y (2018). GD: Geographical Detectors. R package, https://CRAN.R-project.org/package=GD.
-
-Wang J, Li X, Christakos G, Liao Y, Zhang T, Gu X and Zheng X (2010). “Geographical Detectors-Based Health Risk Assessment and its Application in the Neural Tube Defects Study of the Heshun Region, China.” International Journal of Geographical Information Science, 24(1), pp. 107-127. doi: [10.1080/13658810802443457][2].
+Song Y, Wang J, Ge Y and Xu C (2020) "An optimal parameters-based geographical detector model enhances geographic characteristics of explanatory variables for spatial heterogeneity analysis: Cases with different types of spatial data." GIScience & Remote Sensing, doi: [10.1080/15481603.2020.1760434][7].
 
 Wang J, Zhang T and Fu B (2016). “A measure of spatial stratified heterogeneity.” Ecological Indicators, 67, pp. 250-256. doi: [10.1016/j.ecolind.2016.02.052][3].
 
-Song Y, Wang X, Wright G, Thatcher D, Wu P and Felix P (2018). “Traffic Volume Prediction With Segment-Based Regression Kriging and its Implementation in Assessing the Impact of Heavy Vehicles.” IEEE Transactions on Intelligent Transportation Systems, pp. 1-12. doi: [10.1109/TITS.2018.2805817][4].
+Wang J, Li X, Christakos G, Liao Y, Zhang T, Gu X and Zheng X (2010). “Geographical Detectors-Based Health Risk Assessment and its Application in the Neural Tube Defects Study of the Heshun Region, China.” International Journal of Geographical Information Science, 24(1), pp. 107-127. doi: [10.1080/13658810802443457][2].
 
-Xu C and Wang J (2018). Geodetector Website. http://www.geodetector.org/.
+Song Y, Wright G, Wu P, Thatcher D, McHugh T, Li Q, Li SJ and Wang X (2018). "Segment-Based Spatial Analysis for Assessing Road Infrastructure Performance Using Monitoring Observations and Remote Sensing Data". Remote Sensing, 10(11), pp. 1696. doi: [10.3390/rs10111696][8].
 
-## Author and Contact
+Song Y, Wang X, Wright G, Thatcher D, Wu P and Felix P (2019). “Traffic Volume Prediction With Segment-Based Regression Kriging and its Implementation in Assessing the Impact of Heavy Vehicles.” IEEE Transactions on Intelligent Transportation Systems, 20(1), pp. 232 - 243. doi: [10.1109/TITS.2018.2805817][4].
 
-Yongze Song
+Xu C and Wang J (2018). Geodetector Website. http://www.geodetector.cn.
 
-Email: yongze.song@postgrad.curtin.edu.au
+&nbsp; 
 
-Curtin University, Australia
+
 
 [1]: https://CRAN.R-project.org/package=GD
 [2]: https://www.tandfonline.com/doi/abs/10.1080/13658810802443457
 [3]: https://www.sciencedirect.com/science/article/pii/S1470160X16300735?via%3Dihub
 [4]: https://ieeexplore.ieee.org/document/8307463/
-[5]: http://www.geodetector.org/
+[5]: http://www.geodetector.cn
+[6]: https://scholar.google.com.au/citations?user=bNuxvgIAAAAJ&hl=en&oi=ao
+[7]: https://doi.org/10.1080/15481603.2020.1760434
+[8]: https://doi.org/10.3390/rs10111696
+
+&nbsp; 
+&nbsp; 

@@ -1,252 +1,481 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <meta name="author" content="Yongze Song" />
 
-<meta name="date" content="2019-08-21" />
+<meta name="date" content="2020-05-28" />
 
-<title>Geographical Detectors for Spatial Stratified Heterogeneity Analysis</title>
+<title>Optimal Parameters-based Geographical Detectors</title>
 
-
+<script src="GD_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="GD_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="GD_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="GD_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="GD_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="GD_files/navigation-1.1/tabsets.js"></script>
+<link href="GD_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="GD_files/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
-div.sourceCode { overflow-x: auto; }
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
-td.sourceCode { padding-left: 5px; }
-code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code > span.dt { color: #902000; } /* DataType */
-code > span.dv { color: #40a070; } /* DecVal */
-code > span.bn { color: #40a070; } /* BaseN */
-code > span.fl { color: #40a070; } /* Float */
-code > span.ch { color: #4070a0; } /* Char */
-code > span.st { color: #4070a0; } /* String */
-code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code > span.ot { color: #007020; } /* Other */
-code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code > span.fu { color: #06287e; } /* Function */
-code > span.er { color: #ff0000; font-weight: bold; } /* Error */
-code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-code > span.cn { color: #880000; } /* Constant */
-code > span.sc { color: #4070a0; } /* SpecialChar */
-code > span.vs { color: #4070a0; } /* VerbatimString */
-code > span.ss { color: #bb6688; } /* SpecialString */
-code > span.im { } /* Import */
-code > span.va { color: #19177c; } /* Variable */
-code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code > span.op { color: #666666; } /* Operator */
-code > span.bu { } /* BuiltIn */
-code > span.ex { } /* Extension */
-code > span.pp { color: #bc7a00; } /* Preprocessor */
-code > span.at { color: #7d9029; } /* Attribute */
-code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
 </style>
 
 
 
-<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
 
 </head>
 
 <body>
 
 
-
-
-<h1 class="title toc-ignore">Geographical Detectors for Spatial Stratified Heterogeneity Analysis</h1>
-<h4 class="author"><em>Yongze Song</em></h4>
-<h4 class="date"><em>2019-08-21</em></h4>
+<div class="container-fluid main-container">
 
 
 
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Optimal Parameters-based Geographical Detectors</h1>
+<h4 class="author">Yongze Song</h4>
+<h4 class="date">2020-05-28</h4>
+
+</div>
+
+
+<p> </p>
+<div id="latest-version" class="section level4">
+<h4>Latest version</h4>
+<p><a href="https://cran.r-project.org/package=GD"><img src="https://www.r-pkg.org/badges/version/GD?color=orange" /></a> <a href="https://cran.r-project.org/package=GD"><img src="http://cranlogs.r-pkg.org/badges/grand-total/GD?color=blue" /></a> <a href="https://cran.r-project.org/package=GD"><img src="http://cranlogs.r-pkg.org/badges/last-month/GD?color=yellow" /></a> <a href="https://doi.org/10.1080/15481603.2020.1760434"><img src="https://img.shields.io/badge/Publication%20doi-10.1080/15481603.2020.1760434-green.svg" /></a></p>
+<p> </p>
+</div>
+<div id="citation-for-package-gd" class="section level3">
+<h3>Citation for package <code>GD</code></h3>
+<p>To cite <strong>“GD” R package</strong> in publications, please use:</p>
+<p><strong>Song, Y., Wang, J., Ge, Y. &amp; Xu, C. (2020) “An optimal parameters-based geographical detector model enhances geographic characteristics of explanatory variables for spatial heterogeneity analysis: Cases with different types of spatial data”, <em>GIScience &amp; Remote Sensing</em>.</strong> <a href="https://doi.org/10.1080/15481603.2020.1760434"><img src="https://img.shields.io/badge/doi-10.1080/15481603.2020.1760434-yellow.svg" /></a></p>
+<p> </p>
+<p> </p>
+</div>
+<div id="authors-affiliations" class="section level3">
+<h3>Authors’ affiliations</h3>
+<div id="dr.yongze-song" class="section level4">
+<h4>Dr. Yongze Song</h4>
+<p><a href="https://scholar.google.com.au/citations?user=bNuxvgIAAAAJ&amp;hl=en&amp;oi=ao">Google Scholar</a></p>
+<p>Research interests: Spatial statistics, sustainable infrastructure</p>
+<p>Curtin University, Australia</p>
+<p>Email <a href="mailto:yongze.song@curtin.edu.au">yongze.song@curtin.edu.au</a></p>
+<p><strong>Award:</strong></p>
+<p><strong>Global Peer Review Awards 2019: Top reviewers in Geosciences (top 1%) and in Cross-field (top 1%). </strong></p>
+<p><strong>R Packages:</strong></p>
+<p><code>GD</code> <a href="https://cran.r-project.org/package=GD"><img src="http://cranlogs.r-pkg.org/badges/grand-total/GD?color=orange" /></a> <code>SK</code> <a href="https://cran.r-project.org/package=SK"><img src="http://cranlogs.r-pkg.org/badges/grand-total/SK?color=blue" /></a> <code>EDA</code> <a href="https://cran.r-project.org/package=EDA"><img src="http://cranlogs.r-pkg.org/badges/grand-total/EDA?color=yellow" /></a> <code>HS</code> <a href="https://cran.r-project.org/package=HS"><img src="http://cranlogs.r-pkg.org/badges/grand-total/HS?color=green" /></a></p>
+<p> </p>
+<p> </p>
+</div>
+</div>
+<div id="introduction-to-gd-package" class="section level2">
+<h2>Introduction to <code>GD</code> package</h2>
 <p>Spatial stratified heterogeneity can be measured using geographical detectors (<a href="https://www.tandfonline.com/doi/abs/10.1080/13658810802443457">Wang et al. 2010</a>, <a href="https://www.sciencedirect.com/science/article/pii/S1470160X16300735?via%3Dihub">Wang et al. 2016</a>).</p>
-<p><strong>GD</strong> package consists of four parts:</p>
+<p>Power of determinants is computed using a <span class="math inline">\(Q\)</span>-statistic:</p>
+<p><span class="math display">\[Q=1-\displaystyle \frac{\sum_{j=1}^{M} N_{j} \sigma_{j}^2}{N \sigma^2} \]</span></p>
+<p>where <span class="math inline">\(N\)</span> and <span class="math inline">\(\sigma^2\)</span> are the number and population variance of observations within the whole study area, and <span class="math inline">\(N_{j}\)</span> and <span class="math inline">\(\sigma_{j}^2\)</span> are the number and population variance of observations within the <span class="math inline">\(j\)</span>th (<span class="math inline">\(j\)</span>=1,…,<span class="math inline">\(M\)</span>) sub-region of an explantory variable.</p>
+<p><strong>Please note that in <code>R</code> environment, <code>sd</code> and <code>var</code> functions are used for computing sample standard deviation and sample variance.</strong> If sample variance is used in the computation, the equation of <span class="math inline">\(Q\)</span>-statistic can be converted to:</p>
+<p><span class="math display">\[Q=1-\displaystyle \frac{\sum_{j=1}^{M} (N_{j}-1) s_{j}^2}{(N-1) s^2} \]</span></p>
+<p>where <span class="math inline">\(s^2\)</span> and <span class="math inline">\(s_{j}^2\)</span> are sample variance of observations in the whole study area and in the <span class="math inline">\(j\)</span>th sub-region.</p>
+<div class="figure">
+<img src="Figure1.png" alt="Figure 1. Overview of global research using geographical detector model (cumulative citations were updated on June 2020). (Song et al. 2020)" width="450" />
+<p class="caption"><strong>Figure 1</strong>. Overview of global research using geographical detector model (<em>cumulative citations were updated on June 2020</em>). (<a href="https://doi.org/10.1080/15481603.2020.1760434">Song et al. 2020</a>)</p>
+</div>
+<div id="the-model-can-be-used-to-address-following-issues" class="section level3">
+<h3>The model can be used to address following issues:</h3>
 <ul>
-<li><p>the optimal discretization of continuous data;</p></li>
-<li><p>four primary functions of geographical detectors, including factor detector, risk detector, interaction detector and ecological detector;</p></li>
-<li><p>comparison of size effects of spatial unit;</p></li>
-<li><p>visualizations of results.</p></li>
+<li><p>Explore potential factors or explanatory variables from a spatial perspective.</p></li>
+<li><p>Explore potential interactive impacts of geogrpahical variables.</p></li>
+<li><p>Identify high-risk or low-risk regions from potential explanatory variables.</p></li>
 </ul>
-<p><strong>GD</strong> package includes three datasets:</p>
+</div>
+<div id="the-gd-package-makes-following-steps-fast-and-easy" class="section level3">
+<h3>The <strong><code>GD</code> package</strong> makes following steps fast and easy:</h3>
 <ul>
-<li><p><code>NDVI</code> (<code>ndvi_5</code>, <code>ndvi_10</code>, <code>ndvi_20</code>, <code>ndvi_30</code>, <code>ndvi_40</code> and <code>ndvi_50</code>): spatial data of vegetation changes <code>NDVI</code> with six sizes of grids, 5 km, 10 km, 20 km, 30 km, 40 km and 50 km;</p></li>
-<li><p><code>H1N1</code> (<code>h1n1_50</code>, <code>h1n1_100</code> and <code>h1n1_150</code>): spatial data of influenza A virus subtype H1N1 incidences with the spatial grid sizes of 50 km, 100 km and 150 km;</p></li>
-<li><p><code>road_GD</code>: line segment based spatial data of road conditions (<a href="https://ieeexplore.ieee.org/document/8307463/">Song et al. 2018</a>).</p></li>
+<li><p>It contains both supervised and unsupervised spatial data discretization methods, and the optimal spatial discretization method for continuous variables;</p></li>
+<li><p>It contains four primary functions of geographical detectors, including factor detector, risk detector, interaction detector and ecological detector;</p></li>
+<li><p>It can be used to compare size effects of spatial unit;</p></li>
+<li><p>It provides diverse visualizations of spatial analysis results;</p></li>
+<li><p>It contains detailed significance tests for spatial analysis in each step of geographical detectors.</p></li>
 </ul>
+<div class="figure">
+<img src="Figure2.png" alt="Figure 2. General calculation process and relationships of functions in GD package (Song et al. 2020)" width="600" />
+<p class="caption"><strong>Figure 2</strong>. General calculation process and relationships of functions in GD package (<a href="https://doi.org/10.1080/15481603.2020.1760434">Song et al. 2020</a>)</p>
+</div>
 <p>Further information can be found on the <a href="https://CRAN.R-project.org/package=GD">manual</a> of <strong>GD</strong> package.</p>
-<p>More applications of geographical detectors are listed on <a href="http://www.geodetector.org/">Geodetector website</a>.</p>
+<p>More applications of geographical detectors are listed on <a href="http://www.geodetector.cn">Geodetector website</a>.</p>
+<p>   </p>
+</div>
+</div>
 <div id="discretization-and-optimal-discretization" class="section level2">
 <h2>Discretization and optimal discretization</h2>
 <p>Categorical variables are required for geographical detectors, so continuous variables should be discretized before modelling. <strong>GD</strong> package provides two options: discretization with given parameters, including discretization methods and numbers of intervals, and optimal discretization with a series of optional parameter combinations. Dataset <code>ndvi_40</code> is used as an example for explanation.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(<span class="st">&quot;GD&quot;</span>)
-<span class="kw">data</span>(<span class="st">&quot;ndvi_40&quot;</span>)
-<span class="kw">head</span>(ndvi_<span class="dv">40</span>)[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>,]
-<span class="co">#&gt;   NDVIchange Climatezone Mining Tempchange Precipitation   GDP Popdensity</span>
-<span class="co">#&gt; 1    0.11599         Bwk    low    0.25598        236.54 12.55    1.44957</span>
-<span class="co">#&gt; 2    0.01783         Bwk    low    0.27341        213.55  2.69    0.80124</span>
-<span class="co">#&gt; 3    0.13817         Bsk    low    0.30247        448.88 20.06   11.49432</span></code></pre></div>
+<pre class="r"><code>install.packages(&quot;GD&quot;)</code></pre>
+<pre class="r"><code>library(&quot;GD&quot;)
+#&gt; This is GD 1.8.
+#&gt;                         
+#&gt; To cite GD in publications, please use:
+#&gt;                         
+#&gt; Song, Y., Wang, J., Ge, Y. &amp; Xu, C. (2020) An optimal parameters-based geographical detector model enhances geographic characteristics of explanatory variables for spatial heterogeneity analysis: Cases with different types of spatial data, GIScience &amp; Remote Sensing, doi: 10.1080/15481603.2020.1760434.
+#&gt; 
+data(&quot;ndvi_40&quot;)
+head(ndvi_40)[1:3,]
+#&gt;   NDVIchange Climatezone Mining Tempchange Precipitation   GDP Popdensity
+#&gt; 1    0.11599         Bwk    low    0.25598        236.54 12.55    1.44957
+#&gt; 2    0.01783         Bwk    low    0.27341        213.55  2.69    0.80124
+#&gt; 3    0.13817         Bsk    low    0.30247        448.88 20.06   11.49432</code></pre>
 <div id="discretization-with-given-parameters-disc" class="section level3">
 <h3>Discretization with given parameters: <code>disc</code></h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## discretization methods: equal, natural, quantile (default), geometric, sd and manual
-ds1 &lt;-<span class="st"> </span><span class="kw">disc</span>(ndvi_<span class="dv">40</span><span class="op">$</span>Tempchange, <span class="dv">4</span>)
+<pre class="r"><code>## discretization methods: equal, natural, quantile (default), geometric, sd and manual
+ds1 &lt;- disc(ndvi_40$Tempchange, 4)
 ds1
-<span class="kw">plot</span>(ds1)</code></pre></div>
+plot(ds1)</code></pre>
 <p>Further information can be found on the <a href="https://CRAN.R-project.org/package=GD">manual</a> of <strong>GD</strong> package.</p>
 </div>
 <div id="optimal-discretization-optidisc" class="section level3">
 <h3>Optimal discretization: <code>optidisc</code></h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## set optional discretization methods and numbers of intervals
-discmethod &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;equal&quot;</span>,<span class="st">&quot;natural&quot;</span>,<span class="st">&quot;quantile&quot;</span>,<span class="st">&quot;geometric&quot;</span>,<span class="st">&quot;sd&quot;</span>)
-discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">4</span><span class="op">:</span><span class="dv">7</span>)
+<pre class="r"><code>## set optional discretization methods and numbers of intervals
+discmethod &lt;- c(&quot;equal&quot;,&quot;natural&quot;,&quot;quantile&quot;,&quot;geometric&quot;,&quot;sd&quot;)
+discitv &lt;- c(4:7)
 ## optimal discretization
-odc1 &lt;-<span class="st"> </span><span class="kw">optidisc</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Tempchange, <span class="dt">data =</span> ndvi_<span class="dv">40</span>,
+odc1 &lt;- optidisc(NDVIchange ~ Tempchange, data = ndvi_40,
                  discmethod, discitv)
 odc1
-<span class="kw">plot</span>(odc1)</code></pre></div>
+plot(odc1)</code></pre>
+<div class="figure">
+<img src="Figure3.png" alt="Figure 3. Process and results of optimal spatial data discretization" width="600" />
+<p class="caption"><strong>Figure 3</strong>. Process and results of optimal spatial data discretization</p>
 </div>
 </div>
-<div id="geographical-detectors" class="section level2">
-<h2>Geographical detectors</h2>
-<p><strong>GD</strong> package provides two options for geographical detectors modelling: * four functions are performed step by step: <code>gd</code> for factor detector, <code>riskmean</code> and <code>gdrisk</code> for risk detector, <code>gdinteract</code> for interaction detector and <code>gdeco</code> for ecological detector; * optimal discretization and geographical detectors are performed using a one-step function <code>gdm</code>.</p>
-<div id="a-one-step-function-gdm" class="section level3">
-<h3>A one-step function: <code>gdm</code></h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## NDVI: ndvi_40
+</div>
+<div id="optimal-parameters-based-geographical-detectors" class="section level2">
+<h2>(Optimal Parameters-based) Geographical Detectors</h2>
+<p><strong>GD</strong> package provides two options for geographical detectors modelling:</p>
+<ul>
+<li><p>four functions are performed step by step: <code>gd</code> for factor detector, <code>riskmean</code> and <code>gdrisk</code> for risk detector, <code>gdinteract</code> for interaction detector and <code>gdeco</code> for ecological detector;</p></li>
+<li><p>optimal discretization and geographical detectors are performed using a one-step function <code>gdm</code>.</p></li>
+</ul>
+<div id="a-one-step-function-gdm-highly-recommended" class="section level3">
+<h3>A one-step function: <code>gdm</code> (<em>Highly Recommended</em>)</h3>
+<pre class="r"><code>## NDVI: ndvi_40
 ## set optional parameters of optimal discretization
 ## optional methods: equal, natural, quantile, geometric, sd and manual
-discmethod &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;equal&quot;</span>,<span class="st">&quot;natural&quot;</span>,<span class="st">&quot;quantile&quot;</span>)
-discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">4</span><span class="op">:</span><span class="dv">6</span>)
+discmethod &lt;- c(&quot;equal&quot;,&quot;natural&quot;,&quot;quantile&quot;)
+discitv &lt;- c(4:6)
 ## &quot;gdm&quot; function
-ndvigdm &lt;-<span class="st"> </span><span class="kw">gdm</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone <span class="op">+</span><span class="st"> </span>Mining <span class="op">+</span><span class="st"> </span>Tempchange <span class="op">+</span><span class="st"> </span>GDP,
-               <span class="dt">continuous_variable =</span> <span class="kw">c</span>(<span class="st">&quot;Tempchange&quot;</span>, <span class="st">&quot;GDP&quot;</span>),
-               <span class="dt">data =</span> ndvi_<span class="dv">40</span>,
-               <span class="dt">discmethod =</span> discmethod, <span class="dt">discitv =</span> discitv)
+ndvigdm &lt;- gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
+               continuous_variable = c(&quot;Tempchange&quot;, &quot;GDP&quot;),
+               data = ndvi_20,
+               discmethod = discmethod, discitv = discitv)
 ndvigdm
-<span class="kw">plot</span>(ndvigdm)
+plot(ndvigdm)
 
 ## H1N1: h1n1_100
 ## set optional parameters of optimal discretization
-discmethod &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;equal&quot;</span>,<span class="st">&quot;natural&quot;</span>,<span class="st">&quot;quantile&quot;</span>,<span class="st">&quot;geometric&quot;</span>,<span class="st">&quot;sd&quot;</span>)
-discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">3</span><span class="op">:</span><span class="dv">7</span>)
-continuous_variable &lt;-<span class="st"> </span><span class="kw">colnames</span>(h1n1_<span class="dv">100</span>)[<span class="op">-</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">11</span>)]
+discmethod &lt;- c(&quot;equal&quot;,&quot;natural&quot;,&quot;quantile&quot;,&quot;geometric&quot;,&quot;sd&quot;)
+discitv &lt;- c(3:7)
+continuous_variable &lt;- colnames(h1n1_100)[-c(1,11)]
 ## &quot;gdm&quot; function
-h1n1gdm &lt;-<span class="st"> </span><span class="kw">gdm</span>(H1N1 <span class="op">~</span><span class="st"> </span>.,
-               <span class="dt">continuous_variable =</span> continuous_variable,
-               <span class="dt">data =</span> h1n1_<span class="dv">100</span>,
-               <span class="dt">discmethod =</span> discmethod, <span class="dt">discitv =</span> discitv)
+h1n1gdm &lt;- gdm(H1N1 ~ .,
+               continuous_variable = continuous_variable,
+               data = h1n1_100,
+               discmethod = discmethod, discitv = discitv)
 h1n1gdm
-<span class="kw">plot</span>(h1n1gdm)</code></pre></div>
+plot(h1n1gdm)</code></pre>
 </div>
 <div id="factor-detector-gd" class="section level3">
 <h3>Factor detector: <code>gd</code></h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## a categorical explanatory variable
-g1 &lt;-<span class="st"> </span><span class="kw">gd</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone, <span class="dt">data =</span> ndvi_<span class="dv">40</span>)
+<pre class="r"><code>## a categorical explanatory variable
+g1 &lt;- gd(NDVIchange ~ Climatezone, data = ndvi_40)
 g1
 
 ## multiple categorical explanatory variables
-g2 &lt;-<span class="st"> </span><span class="kw">gd</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> ndvi_<span class="dv">40</span>[,<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>])
+g2 &lt;- gd(NDVIchange ~ ., data = ndvi_40[,1:3])
 g2
-<span class="kw">plot</span>(g2)
+plot(g2)
 
 ## multiple variables inclusing continuous variables
-discmethod &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;equal&quot;</span>,<span class="st">&quot;natural&quot;</span>,<span class="st">&quot;quantile&quot;</span>,<span class="st">&quot;geometric&quot;</span>,<span class="st">&quot;sd&quot;</span>)
-discitv &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">3</span><span class="op">:</span><span class="dv">7</span>)
-data.ndvi &lt;-<span class="st"> </span>ndvi_<span class="dv">40</span>
+discmethod &lt;- c(&quot;equal&quot;,&quot;natural&quot;,&quot;quantile&quot;,&quot;geometric&quot;,&quot;sd&quot;)
+discitv &lt;- c(3:7)
+data.ndvi &lt;- ndvi_40
 
-data.continuous &lt;-<span class="st"> </span>data.ndvi[, <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">4</span><span class="op">:</span><span class="dv">7</span>)]
-odc1 &lt;-<span class="st"> </span><span class="kw">optidisc</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> data.continuous, discmethod, discitv)
-data.continuous &lt;-<span class="st"> </span><span class="kw">do.call</span>(cbind, <span class="kw">lapply</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="cf">function</span>(x)
-  <span class="kw">data.frame</span>(<span class="kw">cut</span>(data.continuous[, <span class="op">-</span><span class="dv">1</span>][, x], <span class="kw">unique</span>(odc1[[x]]<span class="op">$</span>itv), <span class="dt">include.lowest =</span> <span class="ot">TRUE</span>))))
-    <span class="co"># add stratified data to explanatory variables</span>
-data.ndvi[, <span class="dv">4</span><span class="op">:</span><span class="dv">7</span>] &lt;-<span class="st"> </span>data.continuous
+data.continuous &lt;- data.ndvi[, c(1, 4:7)]
+odc1 &lt;- optidisc(NDVIchange ~ ., data = data.continuous, discmethod, discitv)
+data.continuous &lt;- do.call(cbind, lapply(1:4, function(x)
+  data.frame(cut(data.continuous[, -1][, x], unique(odc1[[x]]$itv), include.lowest = TRUE))))
+    # add stratified data to explanatory variables
+data.ndvi[, 4:7] &lt;- data.continuous
 
-g3 &lt;-<span class="st"> </span><span class="kw">gd</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> data.ndvi)
+g3 &lt;- gd(NDVIchange ~ ., data = data.ndvi)
 g3
-<span class="kw">plot</span>(g3)</code></pre></div>
+plot(g3)</code></pre>
+<div class="figure">
+<img src="Figure4.png" alt="Figure 4. Results of factor detector" width="300" />
+<p class="caption"><strong>Figure 4</strong>. Results of factor detector</p>
+</div>
 </div>
 <div id="risk-detector-riskmean-and-gdrisk" class="section level3">
 <h3>Risk detector: <code>riskmean</code> and <code>gdrisk</code></h3>
 <p>Risk mean values by variables:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## categorical explanatory variables
-rm1 &lt;-<span class="st"> </span><span class="kw">riskmean</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone <span class="op">+</span><span class="st"> </span>Mining, <span class="dt">data =</span> ndvi_<span class="dv">40</span>)
+<pre class="r"><code>## categorical explanatory variables
+rm1 &lt;- riskmean(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 rm1
-<span class="kw">plot</span>(rm1)
+plot(rm1)
 ## multiple variables inclusing continuous variables
-rm2 &lt;-<span class="st"> </span><span class="kw">riskmean</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> data.ndvi)
+rm2 &lt;- riskmean(NDVIchange ~ ., data = data.ndvi)
 rm2
-<span class="kw">plot</span>(rm2)</code></pre></div>
+plot(rm2)</code></pre>
 <p>Risk matrix:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## categorical explanatory variables
-gr1 &lt;-<span class="st"> </span><span class="kw">gdrisk</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone <span class="op">+</span><span class="st"> </span>Mining, <span class="dt">data =</span> ndvi_<span class="dv">40</span>)
+<pre class="r"><code>## categorical explanatory variables
+gr1 &lt;- gdrisk(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 gr1
-<span class="kw">plot</span>(gr1)
+plot(gr1)
 ## multiple variables inclusing continuous variables
-gr2 &lt;-<span class="st"> </span><span class="kw">gdrisk</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> data.ndvi)
+gr2 &lt;- gdrisk(NDVIchange ~ ., data = data.ndvi)
 gr2
-<span class="kw">plot</span>(gr2)</code></pre></div>
+plot(gr2)</code></pre>
+<div class="figure">
+<img src="Figure5.png" alt="Figure 5. Results of risk detector" width="500" />
+<p class="caption"><strong>Figure 5</strong>. Results of risk detector</p>
+</div>
 </div>
 <div id="interaction-detector-gdinteract" class="section level3">
 <h3>Interaction detector: <code>gdinteract</code></h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## categorical explanatory variables
-gi1 &lt;-<span class="st"> </span><span class="kw">gdinteract</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone <span class="op">+</span><span class="st"> </span>Mining, <span class="dt">data =</span> ndvi_<span class="dv">40</span>)
+<pre class="r"><code>## categorical explanatory variables
+gi1 &lt;- gdinteract(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 gi1
 ## multiple variables inclusing continuous variables
-gi2 &lt;-<span class="st"> </span><span class="kw">gdinteract</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> data.ndvi)
+gi2 &lt;- gdinteract(NDVIchange ~ ., data = data.ndvi)
 gi2
-<span class="kw">plot</span>(gi2)</code></pre></div>
+plot(gi2)</code></pre>
+<div class="figure">
+<img src="Figure6.png" alt="Figure 6. Results of interaction detector" width="400" />
+<p class="caption"><strong>Figure 6</strong>. Results of interaction detector</p>
+</div>
 </div>
 <div id="ecological-detector-gdeco" class="section level3">
 <h3>Ecological detector: <code>gdeco</code></h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">## categorical explanatory variables
-ge1 &lt;-<span class="st"> </span><span class="kw">gdeco</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone <span class="op">+</span><span class="st"> </span>Mining, <span class="dt">data =</span> ndvi_<span class="dv">40</span>)
+<pre class="r"><code>## categorical explanatory variables
+ge1 &lt;- gdeco(NDVIchange ~ Climatezone + Mining, data = ndvi_40)
 ge1
 ## multiple variables inclusing continuous variables
-gd3 &lt;-<span class="st"> </span><span class="kw">gdeco</span>(NDVIchange <span class="op">~</span><span class="st"> </span>., <span class="dt">data =</span> data.ndvi)
+gd3 &lt;- gdeco(NDVIchange ~ ., data = data.ndvi)
 gd3
-<span class="kw">plot</span>(gd3)</code></pre></div>
+plot(gd3)</code></pre>
+<div class="figure">
+<img src="Figure7.png" alt="Figure 7. Results of ecological detector" width="300" />
+<p class="caption"><strong>Figure 7</strong>. Results of ecological detector</p>
+</div>
 </div>
 </div>
 <div id="comparison-of-size-effects-of-spatial-unit" class="section level2">
 <h2>Comparison of size effects of spatial unit</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ndvilist &lt;-<span class="st"> </span><span class="kw">list</span>(ndvi_<span class="dv">20</span>, ndvi_<span class="dv">30</span>, ndvi_<span class="dv">40</span>, ndvi_<span class="dv">50</span>)
-su &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">20</span>,<span class="dv">30</span>,<span class="dv">40</span>,<span class="dv">50</span>) ## sizes of spatial units
+<pre class="r"><code>ndvilist &lt;- list(ndvi_20, ndvi_30, ndvi_40, ndvi_50)
+su &lt;- c(20,30,40,50) ## sizes of spatial units
 ## &quot;gdm&quot; function
-gdlist &lt;-<span class="st"> </span><span class="kw">lapply</span>(ndvilist, <span class="cf">function</span>(x){
-  <span class="kw">gdm</span>(NDVIchange <span class="op">~</span><span class="st"> </span>Climatezone <span class="op">+</span><span class="st"> </span>Mining <span class="op">+</span><span class="st"> </span>Tempchange <span class="op">+</span><span class="st"> </span>GDP,
-      <span class="dt">continuous_variable =</span> <span class="kw">c</span>(<span class="st">&quot;Tempchange&quot;</span>, <span class="st">&quot;GDP&quot;</span>),
-      <span class="dt">data =</span> x, <span class="dt">discmethod =</span> <span class="st">&quot;quantile&quot;</span>, <span class="dt">discitv =</span> <span class="dv">6</span>)
+gdlist &lt;- lapply(ndvilist, function(x){
+  gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
+      continuous_variable = c(&quot;Tempchange&quot;, &quot;GDP&quot;),
+      data = x, discmethod = &quot;quantile&quot;, discitv = 6)
 })
-<span class="kw">sesu</span>(gdlist, su) ## size effects of spatial units</code></pre></div>
+sesu(gdlist, su) ## size effects of spatial units</code></pre>
+<div class="figure">
+<img src="Figure8.png" alt="Figure 8. Spatial scale effects" width="350" />
+<p class="caption"><strong>Figure 8</strong>. Spatial scale effects</p>
+</div>
+<p> </p>
 </div>
 <div id="reference" class="section level2">
 <h2>Reference</h2>
-<p>Song Y (2018). GD: Geographical Detectors. R package, <a href="https://CRAN.R-project.org/package=GD" class="uri">https://CRAN.R-project.org/package=GD</a>.</p>
-<p>Wang J, Li X, Christakos G, Liao Y, Zhang T, Gu X and Zheng X (2010). “Geographical Detectors-Based Health Risk Assessment and its Application in the Neural Tube Defects Study of the Heshun Region, China.” International Journal of Geographical Information Science, 24(1), pp. 107-127. doi: <a href="https://www.tandfonline.com/doi/abs/10.1080/13658810802443457">10.1080/13658810802443457</a>.</p>
+<p>Song Y, Wang J, Ge Y and Xu C (2020) “An optimal parameters-based geographical detector model enhances geographic characteristics of explanatory variables for spatial heterogeneity analysis: Cases with different types of spatial data.” GIScience &amp; Remote Sensing, doi: <a href="https://doi.org/10.1080/15481603.2020.1760434">10.1080/15481603.2020.1760434</a>.</p>
 <p>Wang J, Zhang T and Fu B (2016). “A measure of spatial stratified heterogeneity.” Ecological Indicators, 67, pp. 250-256. doi: <a href="https://www.sciencedirect.com/science/article/pii/S1470160X16300735?via%3Dihub">10.1016/j.ecolind.2016.02.052</a>.</p>
-<p>Song Y, Wang X, Wright G, Thatcher D, Wu P and Felix P (2018). “Traffic Volume Prediction With Segment-Based Regression Kriging and its Implementation in Assessing the Impact of Heavy Vehicles.” IEEE Transactions on Intelligent Transportation Systems, pp. 1-12. doi: <a href="https://ieeexplore.ieee.org/document/8307463/">10.1109/TITS.2018.2805817</a>.</p>
-<p>Xu C and Wang J (2018). Geodetector Website. <a href="http://www.geodetector.org/" class="uri">http://www.geodetector.org/</a>.</p>
-</div>
-<div id="author-and-contact" class="section level2">
-<h2>Author and Contact</h2>
-<p>Yongze Song</p>
-<p>Email: <a href="mailto:yongze.song@postgrad.curtin.edu.au">yongze.song@postgrad.curtin.edu.au</a></p>
-<p>Curtin University, Australia</p>
+<p>Wang J, Li X, Christakos G, Liao Y, Zhang T, Gu X and Zheng X (2010). “Geographical Detectors-Based Health Risk Assessment and its Application in the Neural Tube Defects Study of the Heshun Region, China.” International Journal of Geographical Information Science, 24(1), pp. 107-127. doi: <a href="https://www.tandfonline.com/doi/abs/10.1080/13658810802443457">10.1080/13658810802443457</a>.</p>
+<p>Song Y, Wright G, Wu P, Thatcher D, McHugh T, Li Q, Li SJ and Wang X (2018). “Segment-Based Spatial Analysis for Assessing Road Infrastructure Performance Using Monitoring Observations and Remote Sensing Data”. Remote Sensing, 10(11), pp. 1696. doi: <a href="https://doi.org/10.3390/rs10111696">10.3390/rs10111696</a>.</p>
+<p>Song Y, Wang X, Wright G, Thatcher D, Wu P and Felix P (2019). “Traffic Volume Prediction With Segment-Based Regression Kriging and its Implementation in Assessing the Impact of Heavy Vehicles.” IEEE Transactions on Intelligent Transportation Systems, 20(1), pp. 232 - 243. doi: <a href="https://ieeexplore.ieee.org/document/8307463/">10.1109/TITS.2018.2805817</a>.</p>
+<p>Xu C and Wang J (2018). Geodetector Website. <a href="http://www.geodetector.cn" class="uri">http://www.geodetector.cn</a>.</p>
+<p> </p>
+<p>   </p>
 </div>
 
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
 
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
