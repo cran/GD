@@ -10,4 +10,3 @@ sesu	Comparison of size effects of spatial units.
 v2m  Converts a vector to a lower triangular matrix.
 NDVI  Spatial datasets of vegetation index changes.
 H1N1  Spatial datasets of H1N1 flu incidences.
-road_GD  Spatial datasets of road damage conditions.

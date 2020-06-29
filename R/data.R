@@ -49,25 +49,3 @@
 "h1n1_100"
 #' @rdname H1N1
 "h1n1_150"
-
-#' @title Spatial datasets of road damage conditions.
-#'
-#' @description "road_GD" dataset is the road damage conditions on 5000 road segments,
-#' together with the potential factors of speed limit, local soil type,
-#' population within 1-km buffer around the road, and the daily vechile volumes.
-#' More detials about the data can be found in Yongze Song (2018)
-#' <doi:10.1109/TITS.2018.2805817>.
-#'
-#' @usage data(road_GD)
-#'
-#' @name road_GD
-#' @format A data frame with 5000 rows and 5 variables
-#' @docType data
-#' @author Yongze Song \email{yongze.song@postgrad.curtin.edu.au}
-#' @keywords dataset road_GD
-#'
-#' @references Song, Y., et al., 2018. Traffic Volume Prediction With
-#' Segment-Based Regression Kriging and its Implementation in Assessing
-#' the Impact of Heavy Vehicles.
-#' IEEE Transactions on Intelligent Transportation Systems.
-"road_GD"

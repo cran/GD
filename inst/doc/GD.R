@@ -1,31 +1,40 @@
-## ----setup, include = FALSE---------------------------------------------------
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+## ----setup, include=FALSE-----------------------------------------------------
+knitr::opts_chunk$set(echo = TRUE, fig.path = 'figs/')
 
-## ----echo=FALSE, results="hide", message=FALSE--------------------------------
-library("badger")
-
-## ---- echo = FALSE, results='asis'--------------------------------------------
-cat(
-	badge_cran_release("GD", "orange"),
-	badge_cran_download("GD", "grand-total", "blue"),
-	badge_cran_download("GD", "last-month", "yellow"),
-	badger::badge_custom("Publication doi", "10.1080/15481603.2020.1760434", "green", "https://doi.org/10.1080/15481603.2020.1760434")
-)
-
-## ---- echo = FALSE, results='asis'--------------------------------------------
-cat(
-  "`GD`",
-	badge_cran_download("GD", "grand-total", "orange"),
-  "`SK`",
-	badge_cran_download("SK", "grand-total", "blue"),
-	"`EDA`",
-	badge_cran_download("EDA", "grand-total", "yellow"),
-	"`HS`",
-	badge_cran_download("HS", "grand-total", "green")
-)
+## ---- eval = FALSE------------------------------------------------------------
+#  ## install and library the pacakge
+#  install.packages("GD")
+#  library("GD")
+#  
+#  ## Example 1
+#  ## NDVI: ndvi_40
+#  ## set optional parameters of optimal discretization
+#  ## optional methods: equal, natural, quantile, geometric, sd and manual
+#  discmethod <- c("equal","natural","quantile")
+#  discitv <- c(4:6)
+#  ## "gdm" function
+#  ## In this case, Climatezone and Mining are categorical variables,
+#  ## and Tempchange and GDP are continuous variables.
+#  ndvigdm <- gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
+#                 continuous_variable = c("Tempchange", "GDP"),
+#                 data = ndvi_40,
+#                 discmethod = discmethod, discitv = discitv) # ~3s
+#  ndvigdm
+#  plot(ndvigdm)
+#  
+#  ## Example 2
+#  ## H1N1: h1n1_100
+#  ## set optional parameters of optimal discretization
+#  discmethod <- c("equal","natural","quantile","geometric","sd")
+#  discitv <- c(3:7)
+#  continuous_variable <- colnames(h1n1_100)[-c(1,11)]
+#  ## "gdm" function
+#  h1n1gdm <- gdm(H1N1 ~ .,
+#                 continuous_variable = continuous_variable,
+#                 data = h1n1_100,
+#                 discmethod = discmethod, discitv = discitv)
+#  h1n1gdm
+#  plot(h1n1gdm)
 
 ## ---- eval = FALSE------------------------------------------------------------
 #  install.packages("GD")
@@ -52,33 +61,6 @@ head(ndvi_40)[1:3,]
 #  plot(odc1)
 
 ## ---- eval = FALSE------------------------------------------------------------
-#  ## NDVI: ndvi_40
-#  ## set optional parameters of optimal discretization
-#  ## optional methods: equal, natural, quantile, geometric, sd and manual
-#  discmethod <- c("equal","natural","quantile")
-#  discitv <- c(4:6)
-#  ## "gdm" function
-#  ndvigdm <- gdm(NDVIchange ~ Climatezone + Mining + Tempchange + GDP,
-#                 continuous_variable = c("Tempchange", "GDP"),
-#                 data = ndvi_20,
-#                 discmethod = discmethod, discitv = discitv)
-#  ndvigdm
-#  plot(ndvigdm)
-#  
-#  ## H1N1: h1n1_100
-#  ## set optional parameters of optimal discretization
-#  discmethod <- c("equal","natural","quantile","geometric","sd")
-#  discitv <- c(3:7)
-#  continuous_variable <- colnames(h1n1_100)[-c(1,11)]
-#  ## "gdm" function
-#  h1n1gdm <- gdm(H1N1 ~ .,
-#                 continuous_variable = continuous_variable,
-#                 data = h1n1_100,
-#                 discmethod = discmethod, discitv = discitv)
-#  h1n1gdm
-#  plot(h1n1gdm)
-
-## ---- eval = FALSE------------------------------------------------------------
 #  ## a categorical explanatory variable
 #  g1 <- gd(NDVIchange ~ Climatezone, data = ndvi_40)
 #  g1
@@ -88,13 +70,13 @@ head(ndvi_40)[1:3,]
 #  g2
 #  plot(g2)
 #  
-#  ## multiple variables inclusing continuous variables
+#  ## multiple variables including continuous variables
 #  discmethod <- c("equal","natural","quantile","geometric","sd")
 #  discitv <- c(3:7)
 #  data.ndvi <- ndvi_40
 #  
 #  data.continuous <- data.ndvi[, c(1, 4:7)]
-#  odc1 <- optidisc(NDVIchange ~ ., data = data.continuous, discmethod, discitv)
+#  odc1 <- optidisc(NDVIchange ~ ., data = data.continuous, discmethod, discitv) # ~14s
 #  data.continuous <- do.call(cbind, lapply(1:4, function(x)
 #    data.frame(cut(data.continuous[, -1][, x], unique(odc1[[x]]$itv), include.lowest = TRUE))))
 #      # add stratified data to explanatory variables
