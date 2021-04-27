@@ -7,9 +7,15 @@
 \alias{h1n1_100}
 \alias{h1n1_150}
 \title{Spatial datasets of H1N1 flu incidences}
-\format{\code{h1n1_50}: A data frame with 3977 rows and 11 variables
+\format{
+\code{h1n1_50}: A data frame with 3977 rows and 11 variables
 \code{h1n1_100}: A data frame with 987 rows and 11 variables
-\code{h1n1_150}: A data frame with 443 rows and 11 variables}
+\code{h1n1_150}: A data frame with 443 rows and 11 variables
+
+An object of class \code{data.frame} with 987 rows and 11 columns.
+
+An object of class \code{data.frame} with 443 rows and 11 columns.
+}
 \usage{
 h1n1_50
 

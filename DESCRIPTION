@@ -1,8 +1,8 @@
 Package: GD
 Type: Package
 Title: Geographical Detectors for Assessing Spatial Factors
-Date: 2020-06-28
-Version: 1.9
+Date: 2021-04-27
+Version: 1.10
 Authors@R: person("Yongze Song", email = "yongze.song@postgrad.curtin.edu.au",
                   comment = c(ORCID = "0000-0003-3420-9622"),
                   role = c("aut", "cre"))
@@ -23,12 +23,12 @@ Description: Geographical detectors for measuring spatial stratified heterogenei
 Imports: stats, utils, graphics, badger
 Depends: R (>= 3.4.0)
 License: GPL-2
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 LazyData: true
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2020-06-29 05:44:20 UTC; zack
+Packaged: 2021-04-27 04:20:03 UTC; yongzesong
 Author: Yongze Song [aut, cre] (<https://orcid.org/0000-0003-3420-9622>)
 Repository: CRAN
-Date/Publication: 2020-06-29 06:10:03 UTC
+Date/Publication: 2021-04-27 06:20:07 UTC

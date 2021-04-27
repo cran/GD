@@ -10,12 +10,24 @@
 \alias{ndvi_40}
 \alias{ndvi_50}
 \title{Spatial datasets of vegetation index changes.}
-\format{\code{ndvi_5}: A data frame with 46295 rows and 7 variables
+\format{
+\code{ndvi_5}: A data frame with 46295 rows and 7 variables
 \code{ndvi_10}: A data frame with 11567 rows and 7 variables
 \code{ndvi_20}: A data frame with 2892 rows and 7 variables
 \code{ndvi_30}: A data frame with 1290 rows and 7 variables
 \code{ndvi_40}: A data frame with 713 rows and 7 variables
-\code{ndvi_50}: A data frame with 469 rows and 7 variables}
+\code{ndvi_50}: A data frame with 469 rows and 7 variables
+
+An object of class \code{data.frame} with 11567 rows and 7 columns.
+
+An object of class \code{data.frame} with 2892 rows and 7 columns.
+
+An object of class \code{data.frame} with 1290 rows and 7 columns.
+
+An object of class \code{data.frame} with 713 rows and 7 columns.
+
+An object of class \code{data.frame} with 469 rows and 7 columns.
+}
 \usage{
 ndvi_5
 

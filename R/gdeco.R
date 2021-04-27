@@ -14,7 +14,7 @@
 #' @param x A list of ecological detector results
 #' @param ... Ignore
 #'
-#' @importFrom stats pf sd
+#' @importFrom stats qf
 #' @importFrom utils combn
 #' @importFrom graphics plot axis text box par
 #'
@@ -48,16 +48,15 @@ gdeco <- function(formula, data = NULL){
   names(fv) <- c("var1","var2")
 
   FunF <- function(y, x1, x2){
-    c1 <- tapply(y, x1, length); s1 <- tapply(y, x1, sd) # debug: replace aggregate by tapply
-    c2 <- tapply(y, x2, length); s2 <- tapply(y, x2, sd)
-    c1 <- c1[c1 > 1]; s1 <- s1[c1 > 1]
-    c2 <- c2[c2 > 1]; s2 <- s2[c2 > 1]
-    nx1 <- length(x1); nx2 <- length(x2)
-    fvalue <- nx1 * (nx2 - 1) * sum(c1 * s1^2)/(nx2 * (nx1 - 1) * sum(c2 * s2^2))
-    sig <- 1 - pf(fvalue, df1 = nx1 - 1, df2 = nx2 - 1)
-    eco <- ifelse(sig < 0.05, "Y", "N")
+    n <- length(y)
+    g1 <- gd(y ~ x1, data = data.frame(y, x1))
+    g2 <- gd(y ~ x2, data = data.frame(y, x2))
+    fvalue <- g2$Factor$qv / g1$Factor$qv
+    f0 <- qf(0.9, df1 = n - 1, df2 = n - 1)
+    eco <- ifelse(fvalue > f0 | 1/fvalue > f0 , "Y", "N")
+
     eco <- factor(eco, levels = c("Y", "N"))
-    result <- cbind(data.frame(f = fvalue, sig), eco)
+    result <- data.frame(eco)
     return(result)
   }
 

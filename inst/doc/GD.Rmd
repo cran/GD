@@ -1,5 +1,5 @@
 ---
-title: "Optimal Parameters-based Geographical Detectors for Assessing Spatial Factors"
+title: "Optimal Parameters-based Geographical Detectors (OPGD) Model for Spatial Heterogeneity Analysis and Factor Exploration"
 author: "Yongze Song"
 date: "`r Sys.Date()`"
 output:
@@ -7,7 +7,7 @@ output:
     fig_caption: true
     self_contained: yes
 vignette: >
-  %\VignetteIndexEntry{Optimal Parameters-based Geographical Detectors for Assessing Spatial Factors} 
+  %\VignetteIndexEntry{Optimal Parameters-based Geographical Detectors (OPGD) Model for Spatial Heterogeneity Analysis and Factor Exploration} 
   %\VignetteEncoding{UTF-8} 
   %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -21,9 +21,9 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = 'figs/')
 
 &nbsp; 
 
-`Current version: GD v1.9`
+`Current version: GD v1.10`
 
-`Total downloads: 13,300 (June 2020)`
+**Recommendation: [Understanding Spatial Stratified Heterogeneity Using R][10]**
 
 &nbsp; 
 
@@ -44,19 +44,15 @@ To cite **`GD` R package** in publications, please use:
 
 ### Authors’ affiliations
 
-#### Dr. Yongze Song
+**Dr. Yongze Song**
 
-[Google Scholar][6]
+[Google Scholar][6], [ResearchGate][11]
 
 Research interests: Spatial statistics, sustainable infrastructure
 
 Curtin University, Australia
 
 Email: yongze.song@curtin.edu.au
-
-**Award:**
-
-**Global Peer Review Awards 2019: Top reviewers in Geosciences (top 1%) and in Cross-field (top 1%).**
 
 &nbsp; 
 
@@ -83,6 +79,10 @@ Email: yongze.song@curtin.edu.au
 - It provides diverse visualizations of spatial analysis results;
 
 - It contains detailed significance tests for spatial analysis in each step of geographical detectors. 
+
+ 
+![**Figure 1**. Overview of global research using geographical detector model (*cumulative citations were updated on June 2020*). ([Song et al. 2020][7])](./fig/Figure1.png){width=300px}
+
 
 
 ### Start from the *one-step function*: `gdm` (*Highly Recommended*)
@@ -127,7 +127,6 @@ h1n1gdm
 plot(h1n1gdm)
 ```
 
- 
 
 &nbsp; 
 
@@ -147,11 +146,9 @@ $$Q=1-\displaystyle \frac{\sum_{j=1}^{M} (N_{j}-1) s_{j}^2}{(N-1) s^2} $$
 
 where $s^2$ and $s_{j}^2$ are sample variance of observations in the whole study area and in the $j$ th sub-region. 
 
-![**Figure 1**. Overview of global research using geographical detector model (*cumulative citations were updated on June 2020*). ([Song et al. 2020][7])](./fig/Figure1.png){width=450px}
 
 
-
-![**Figure 2**. General calculation process and relationships of functions in GD package ([Song et al. 2020][7])](./fig/Figure2.png){width=600px}
+![**Figure 2**. General calculation process and relationships of functions in GD package ([Song et al. 2020][7])](./fig/Figure2.png){width=300px}
 
 Further information can be found on the [manual][1] of **GD** package.
 
@@ -331,11 +328,9 @@ sesu(gdlist, su) ## size effects of spatial units
 
 Song Y, Wang J, Ge Y and Xu C (2020) "An optimal parameters-based geographical detector model enhances geographic characteristics of explanatory variables for spatial heterogeneity analysis: Cases with different types of spatial data." GIScience & Remote Sensing, 57(5), pp. 593-610. doi: [10.1080/15481603.2020.1760434][7].
 
-Song Y, Wu P, Gilmore D and Li Q (2020). “A Spatial Heterogeneity-Based Segmentation Model for Analyzing Road Deterioration Network Data in Multi-Scale Infrastructure Systems.” IEEE Transactions on Intelligent Transportation Systems. doi: [10.1109/TITS.2020.3001193][9].
-
 Song Y, Wright G, Wu P, Thatcher D, McHugh T, Li Q, Li SJ and Wang X (2018). "Segment-Based Spatial Analysis for Assessing Road Infrastructure Performance Using Monitoring Observations and Remote Sensing Data". Remote Sensing, 10(11), pp. 1696. doi: [10.3390/rs10111696][8].
 
-Song Y, Wang X, Wright G, Thatcher D, Wu P and Felix P (2019). “Traffic Volume Prediction With Segment-Based Regression Kriging and its Implementation in Assessing the Impact of Heavy Vehicles.” IEEE Transactions on Intelligent Transportation Systems, 20(1), pp. 232 - 243. doi: [10.1109/TITS.2018.2805817][4].
+Song Y, Wu P, Gilmore D and Li Q (2020). “A Spatial Heterogeneity-Based Segmentation Model for Analyzing Road Deterioration Network Data in Multi-Scale Infrastructure Systems.” IEEE Transactions on Intelligent Transportation Systems. doi: [10.1109/TITS.2020.3001193][9].
 
 Wang J, Li X, Christakos G, Liao Y, Zhang T, Gu X and Zheng X (2010). “Geographical Detectors-Based Health Risk Assessment and its Application in the Neural Tube Defects Study of the Heshun Region, China.” International Journal of Geographical Information Science, 24(1), pp. 107-127. doi: [10.1080/13658810802443457][2].
 
@@ -355,6 +350,9 @@ Wang J, Zhang T and Fu B (2016). “A measure of spatial stratified heterogeneit
 [7]: https://doi.org/10.1080/15481603.2020.1760434
 [8]: https://doi.org/10.3390/rs10111696
 [9]: https://ieeexplore.ieee.org/document/9123684
+[10]: https://yongzesong.github.io/R
+[11]: https://www.researchgate.net/profile/Yongze-Song
+
 
 &nbsp; 
 &nbsp; 
