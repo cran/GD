@@ -29,11 +29,11 @@
 gd <- function(formula, data = NULL){
   formula <- as.formula(formula)
   formula.vars <- all.vars(formula)
-  response <- subset(data, select = formula.vars[1]) # debug: use subset to select data
+  response <- data[, formula.vars[1], drop = TRUE]
   if (formula.vars[2] == "."){
-    explanatory <- subset(data, select = -match(formula.vars[1], colnames(data)))
+    explanatory <- data[, !(colnames(data) %in% formula.vars[1]), drop = FALSE]
   } else {
-    explanatory <- subset(data, select = formula.vars[-1])
+    explanatory <- data[, formula.vars[-1], drop = FALSE]
   }
   ncolx <- ncol(explanatory)
 
@@ -67,7 +67,7 @@ gd <- function(formula, data = NULL){
     return(qv.sig)
   }
 
-  result <- do.call(rbind, lapply(1:ncolx, function(x) FunQ(response[, 1], explanatory[, x])))
+  result <- do.call(rbind, lapply(1:ncolx, function(x) FunQ(response, explanatory[, x, drop = TRUE])))
   result <- cbind(variable = colnames(explanatory), data.frame(result))
 
   result <- list("Factor" = result)
@@ -100,18 +100,19 @@ plot.gd <- function(x, sig = TRUE, ...){
     cat("\n",nrow21,"variable/variables are removed due to the signficance higher than 0.05.\n")
   }
 
-  vec <- rs2$qv
+  vec <- rs2[, "qv", drop = TRUE]
   names(vec) <- as.character(rs2$variable)
   vec.col <- ifelse(vec == max(vec), "red", "gray")
 
   nchar.names <- max(nchar(as.character(rs2$variable)))
   par(mar = c(5.1, 3.1 + nchar.names/4, 2.1, 2.1))
-  x <- barplot(rev(vec), horiz = TRUE, col = rev(vec.col), xlim = c(0, min(max(vec)*1.1, 1)),
-               xlab = "Q value", las = 1)
+  p1 <- barplot(height = rev(vec), names = names(vec),
+                horiz = TRUE, col = rev(vec.col), xlim = c(0, min(max(vec)*1.1, 1)),
+                xlab = "Q value", las = 1)
   vec.lable <- round(vec, digits = 4)
   k1 <- length(which(vec > max(vec)/2))
   k2 <- length(vec) - k1
   text.pos <- c(rep(2, k1), rep(4, k2))
-  text(x = vec, rev(x), pos = text.pos, label = vec.lable)
+  text(x = vec, rev(p1), pos = text.pos, label = vec.lable)
   par(mar = c(5.1, 4.1, 4.1, 2.1))
 }

@@ -1,12 +1,12 @@
 Package: GD
 Type: Package
 Title: Geographical Detectors for Assessing Spatial Factors
-Date: 2021-04-27
-Version: 1.10
-Authors@R: person("Yongze Song", email = "yongze.song@postgrad.curtin.edu.au",
+Date: 2023-08-20
+Version: 10.2
+Authors@R: person("Yongze Song", email = "yongze.song@outlook.com",
                   comment = c(ORCID = "0000-0003-3420-9622"),
                   role = c("aut", "cre"))
-Maintainer: Yongze Song <yongze.song@postgrad.curtin.edu.au>
+Maintainer: Yongze Song <yongze.song@outlook.com>
 Description: Geographical detectors for measuring spatial stratified heterogeneity,
              as described in Jinfeng Wang (2010) <doi:10.1080/13658810802443457> and 
              Jinfeng Wang (2016) <doi:10.1016/j.ecolind.2016.02.052>. Includes the
@@ -20,15 +20,16 @@ Description: Geographical detectors for measuring spatial stratified heterogenei
              multi-scale spatial segmentation for network data, as described in 
              Yongze Song (2018) <doi:10.3390/rs10111696> and 
              Yongze Song (2020) <doi:10.1109/TITS.2020.3001193>, respectively. 
-Imports: stats, utils, graphics, badger
-Depends: R (>= 3.4.0)
+Imports: stats, utils, graphics, BAMMtools
+Depends: R (>= 4.3)
 License: GPL-2
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 LazyData: true
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
+Encoding: UTF-8
 NeedsCompilation: no
-Packaged: 2021-04-27 04:20:03 UTC; yongzesong
+Packaged: 2023-08-21 15:27:16 UTC; 268222h
 Author: Yongze Song [aut, cre] (<https://orcid.org/0000-0003-3420-9622>)
 Repository: CRAN
-Date/Publication: 2021-04-27 06:20:07 UTC
+Date/Publication: 2023-08-21 18:30:16 UTC

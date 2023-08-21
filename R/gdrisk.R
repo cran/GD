@@ -30,11 +30,11 @@
 gdrisk <- function(formula, data = NULL){
   formula <- as.formula(formula)
   formula.vars <- all.vars(formula)
-  response <- subset(data, select = formula.vars[1]) # debug: use subset to select data
+  response <- data[, formula.vars[1], drop = TRUE]
   if (formula.vars[2] == "."){
-    explanatory <- subset(data, select = -match(formula.vars[1], colnames(data)))
+    explanatory <- data[, !(colnames(data) %in% formula.vars[1]), drop = FALSE]
   } else {
-    explanatory <- subset(data, select = formula.vars[-1])
+    explanatory <- data[, formula.vars[-1], drop = FALSE]
   }
   ncolx <- ncol(explanatory)
 
@@ -76,7 +76,7 @@ gdrisk <- function(formula, data = NULL){
     tv <- cbind(tv, t.var)
   }
 
-  result <- lapply(1:ncolx, function(u) FunT.var(response[, 1], explanatory[, u]))
+  result <- lapply(1:ncolx, function(u) FunT.var(response, explanatory[, u, drop = TRUE]))
   names(result) <- variable
 
   ## define class

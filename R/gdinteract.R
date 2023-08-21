@@ -32,11 +32,11 @@
 gdinteract <- function(formula, data = NULL){
   formula <- as.formula(formula)
   formula.vars <- all.vars(formula)
-  response <- subset(data, select = formula.vars[1]) # debug: use subset to select data
+  response <- data[, formula.vars[1], drop = TRUE]
   if (formula.vars[2] == "."){
-    explanatory <- subset(data, select = -match(formula.vars[1], colnames(data)))
+    explanatory <- data[, !(colnames(data) %in% formula.vars[1]), drop = FALSE]
   } else {
-    explanatory <- subset(data, select = formula.vars[-1])
+    explanatory <- data[, formula.vars[-1], drop = FALSE]
   }
   ncolx <- ncol(explanatory)
 
@@ -48,7 +48,7 @@ gdinteract <- function(formula, data = NULL){
   result <- as.data.frame(t(combn(variable,2)))
   names(result) <- c("var1","var2")
 
-  y <- response[, 1]
+  y <- response
 
   FunI <- function(y, x1, x2){ # debug: simplify functions
     x12 <- paste(x1, x2, sep = "_") # debug: remove stra2v function
@@ -74,8 +74,8 @@ gdinteract <- function(formula, data = NULL){
 
   # debug: use lapply to replace for loop
   q.itr <- do.call(rbind, lapply(1:nrow(result), function(x){
-    x1 <- explanatory[,which(variable == result$var1[x])]
-    x2 <- explanatory[,which(variable == result$var2[x])]
+    x1 <- explanatory[,which(variable == result$var1[x]), drop = TRUE]
+    x2 <- explanatory[,which(variable == result$var2[x]), drop = TRUE]
     itr <- FunI(y, x1, x2)
   }))
 

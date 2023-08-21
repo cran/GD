@@ -19,6 +19,7 @@
 #'
 #' @importFrom stats na.omit quantile sd runif
 #' @importFrom graphics hist abline
+#' @importFrom BAMMtools getJenksBreaks
 #'
 #' @examples
 #' ## method is default (quantile); number of intervals is 4
@@ -45,36 +46,7 @@ disc <- function(var, n, method = "quantile", ManualItv){
   }
 
   MethodNatural <- function(var, n){ # debug: increase speed
-    ssd <- function(x) sum((x - mean(x))^2)
-    minvar <- min(var); maxvar <- max(var)
-    # set optional itv values to increase speed
-    options <- unique(sort(var))
-    size <- 1000
-    if (length(options) > size) {
-      options2 <- seq(minvar, maxvar, length = size)
-      count.options2 <- round(sqrt(table(cut(var, options2, include.lowest = TRUE))))
-      options <- unlist(sapply(1:(size - 1), function(x)
-        seq(options2[x], options2[x + 1], length = count.options2[x])))
-      options <- unique(options, maxvar)
-    }
-    # set variable data as op.var: mean var within options
-    op.cut <- as.numeric(cut(var, options, include.lowest = TRUE))
-    op.var <- sapply(split(var, op.cut), mean)
-    # locations
-    locations <- sapply(1:1000, function(x) sort(sample(2:(length(options) - 1), n - 1, replace = F)))
-    locations <- unique(locations, MARGIN = 2)
-    lncol <- ncol(locations); lnrow <- nrow(locations)
-    # select best itv
-    options2 <- matrix(options[locations], lnrow, lncol)
-    itv0 <- rbind(rep(minvar, lncol), options2, rep(maxvar, lncol))
-    itv0.cut <- apply(itv0, 2, function(x) as.numeric(cut(op.var, x, include.lowest = TRUE)))
-    itv0.x <- apply(itv0.cut, 2, function(x) sum(sapply(split(op.var, x), ssd)))
-    min.tssd <- quantile(itv0.x, 0.1, na.rm = TRUE)
-    k <- which(itv0.x <= min.tssd)
-    itv <- as.matrix(itv0[, k]) # debug: ensure itv is a matrix
-    itv <- rowMeans(itv)
-    itv[1] <- minvar
-    return(itv)
+    getJenksBreaks(var, n+1)
   }
 
   MethodQuantile <- function(var, n){

@@ -34,11 +34,11 @@ optidisc <- function(formula, data,
 
   formula <- as.formula(formula) # debug: use formula to optimize discretization
   formula.vars <- all.vars(formula)
-  response <- subset(data, select = formula.vars[1])
+  response <- data[, formula.vars[1], drop = TRUE]
   if (formula.vars[2] == "."){
-    explanatory <- subset(data, select = -match(formula.vars[1], colnames(data)))
+    explanatory <- data[, !(colnames(data) %in% formula.vars[1]), drop = FALSE]
   } else {
-    explanatory <- subset(data, select = formula.vars[-1])
+    explanatory <- data[, formula.vars[-1], drop = FALSE]
   }
   ncolx <- ncol(explanatory)
   variable <- colnames(explanatory)
@@ -71,27 +71,25 @@ optidisc <- function(formula, data,
     return(qv)
   }
   ### optimal discretization for a continuous variable
-  FunOpDisc <- function(vec.response, vec.explanatory, op.itv.method){
-    op.qv <- sapply(1:nrow(op.itv.method), # debug: use sapply
-                    function(x) FunDiscQ(vec.response, vec.explanatory,
-                                         f.method = as.character(op.itv.method[x, 1]),
-                                         f.itv = op.itv.method[x, 2]))
-    k <- which(op.qv == max(op.qv, na.rm = TRUE))[1]
-
+  optidisc.list <- c()
+  for (i in 1:ncolx){
+    xi <- explanatory[, i, drop = TRUE]
+    op.qvi <- sapply(1:nrow(op.itv.method), # debug: use sapply
+                     function(x) FunDiscQ(response, xi,
+                                          f.method = as.character(op.itv.method[x, 1]),
+                                          f.itv = op.itv.method[x, 2]))
+    k <- which(op.qvi == max(op.qvi, na.rm = TRUE))[1]
     dmk <- as.character(op.itv.method[k, 1])
     nik <- op.itv.method[k, 2]
-    dc1 <- disc(vec.explanatory, nik, method = dmk)
+    dc1 <- disc(xi, nik, method = dmk)
     # debug: calculate x.itv for explanatory variables
-    x.itv <- table(cut(vec.explanatory, dc1$itv, include.lowest = TRUE))
-    qv.matrix <- matrix(op.qv, n.itv, n.method, dimnames = list(discitv, discmethod))
+    x.itv <- table(cut(xi, dc1$itv, include.lowest = TRUE))
+    qv.matrix <- matrix(op.qvi, n.itv, n.method, dimnames = list(discitv, discmethod))
 
-    opdisc.list <- list("method" = dmk, "n.itv" = nik, "itv" = dc1$itv,
-                        "x.itv" = x.itv, "qv.matrix" = qv.matrix, "discretization" = dc1)
-
+    optidisc.list[[i]] <- list("method" = dmk, "n.itv" = nik, "itv" = dc1$itv,
+                               "x.itv" = x.itv, "qv.matrix" = qv.matrix, "discretization" = dc1)
   }
-  ### optimal discretization for multiple continuous variables
-  # debug: use lapply
-  optidisc.list <- lapply(1:ncolx, function(x) FunOpDisc(response[, 1], explanatory[, x], op.itv.method))
+
   names(optidisc.list) <- variable
 
   ## define class
@@ -174,4 +172,5 @@ plot.optidisc <- function(x, ...){
   }
   par(mfrow = c(1, 1))
 }
+
 

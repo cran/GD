@@ -31,11 +31,11 @@
 gdeco <- function(formula, data = NULL){
   formula <- as.formula(formula)
   formula.vars <- all.vars(formula)
-  response <- subset(data, select = formula.vars[1]) # debug: use subset to select data
+  response <- data[, formula.vars[1], drop = TRUE]
   if (formula.vars[2] == "."){
-    explanatory <- subset(data, select = -match(formula.vars[1], colnames(data)))
+    explanatory <- data[, !(colnames(data) %in% formula.vars[1]), drop = FALSE]
   } else {
-    explanatory <- subset(data, select = formula.vars[-1])
+    explanatory <- data[, formula.vars[-1], drop = FALSE]
   }
   ncolx <- ncol(explanatory)
 
@@ -60,10 +60,10 @@ gdeco <- function(formula, data = NULL){
     return(result)
   }
 
-  y <- response[, 1]
+  y <- response
   f.eco <- do.call(rbind, lapply(1:nrow(fv), function(x){ # debug: use lapply to replace for loop
-    x1 <- explanatory[,which(variable==as.character(fv$var1[x]))]
-    x2 <- explanatory[,which(variable==as.character(fv$var2[x]))]
+    x1 <- explanatory[,which(variable==as.character(fv$var1[x])), drop = TRUE]
+    x2 <- explanatory[,which(variable==as.character(fv$var2[x])), drop = TRUE]
     f <- FunF(y, x1, x2)
   }))
 

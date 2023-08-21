@@ -56,24 +56,25 @@
 gdm <- function(formula, continuous_variable = NULL, data = NULL, discmethod, discitv){
   formula <- as.formula(formula)
   formula.vars <- all.vars(formula)
-  response <- subset(data, select = formula.vars[1]) # debug: use subset to select data
+  response <- data[, formula.vars[1], drop = FALSE]
   if (formula.vars[2] == "."){
-    explanatory <- subset(data, select = -match(formula.vars[1], colnames(data))) # debug: subset
+    explanatory <- data[, !(colnames(data) %in% formula.vars[1]), drop = FALSE]
   } else {
-    explanatory <- subset(data, select = formula.vars[-1])
+    explanatory <- data[, formula.vars[-1], drop = FALSE]
   }
 
   ### result of optimal discretization
   if (!is.null(continuous_variable)){
-    explanatory_continuous <- subset(data, select = match(continuous_variable, colnames(data)))
+    explanatory_continuous <- data[,match(continuous_variable, colnames(data)),drop=FALSE]
     n.continuous <- ncol(explanatory_continuous)
-    data.ctn <- cbind(y = response[, 1], explanatory_continuous)
+    data.ctn <- cbind(y = response[,1,drop=TRUE], explanatory_continuous)
     # debug: use new optidisc function and lapply
     odc1 <- optidisc(y ~ ., data.ctn, discmethod, discitv)
-    explanatory_stra <- do.call(cbind, lapply(1:n.continuous, function(x)
-      data.frame(cut(explanatory_continuous[, x], unique(odc1[[x]]$itv), include.lowest = TRUE))))
-    # debug: use cut to replace stra; use data.frame to remain stra names
-    # add stratified data to explanatory variables
+    explanatory_stra <- explanatory_continuous
+    for (j in 1:n.continuous){
+      breakj <- unique(odc1[[j]]$itv)
+      explanatory_stra[,j] <- cut(explanatory_continuous[, j, drop = TRUE], breakj, include.lowest = TRUE)
+    }
     explanatory[, match(continuous_variable, colnames(explanatory))] <- explanatory_stra
   }
 
@@ -145,20 +146,20 @@ plot.gdm <- function(x, ...){
   if (lrd == 0){
     cat("\n\nall explanatory variables are categorical variables ...\n\n")
   } else {
-    plot.optidisc(x$Discretization)
+    plot(x$Discretization)
   }
 
   ### plot geographical detectors
   cat("plot factor detectors ...\n\n")
-  plot.gd(x$Factor.detector)
+  plot(x$Factor.detector)
   cat("plot risk mean values ...\n\n")
-  plot.riskmean(x$Risk.mean)
+  plot(x$Risk.mean)
   cat("plot risk detectors ...\n\n")
-  plot.gdrisk(x$Risk.detector)
+  plot(x$Risk.detector)
   if (length(x$Interaction.detector) > 0){
     cat("plot interaction detectors ...\n\n")
-    plot.gdinteract(x$Interaction.detector)
+    plot(x$Interaction.detector)
     cat("plot ecological detectors ...\n")
-    plot.gdeco(x$Ecological.detector)
+    plot(x$Ecological.detector)
   }
 }

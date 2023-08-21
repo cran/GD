@@ -30,16 +30,16 @@
 riskmean <- function(formula, data = NULL){
   formula <- as.formula(formula)
   formula.vars <- all.vars(formula)
-  response <- subset(data, select = formula.vars[1]) # debug: use subset to select data
+  response <- data[, formula.vars[1], drop = TRUE]
   if (formula.vars[2] == "."){
-    explanatory <- subset(data, select = -match(formula.vars[1], colnames(data)))
+    explanatory <- data[, !(colnames(data) %in% formula.vars[1]), drop = FALSE]
   } else {
-    explanatory <- subset(data, select = formula.vars[-1])
+    explanatory <- data[, formula.vars[-1], drop = FALSE]
   }
   ncolx <- ncol(explanatory)
 
   result <- lapply(1:ncolx, function(x){ # debug: use lapply and tapply to replace loops
-    meanrisk <- tapply(response[, 1], explanatory[, x], mean)
+    meanrisk <- tapply(response, explanatory[, x, drop = TRUE], mean)
     meanrisk <- cbind(itv = names(meanrisk), data.frame(meanrisk))
     meanrisk$itv <- factor(meanrisk$itv, levels = levels(factor(explanatory[, x])))
     row.names(meanrisk) <- c()
