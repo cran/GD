@@ -54,4 +54,3 @@ S3method(print,optidisc)
 S3method(plot,optidisc)
 S3method(print,riskmean)
 S3method(plot,riskmean)
-

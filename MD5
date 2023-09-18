@@ -1,9 +1,9 @@
-1c18b617af65c50cef335d31811bb2b9 *DESCRIPTION
+f12e7c264d6f5b55da2fc11d2d9b0bec *DESCRIPTION
 3a2d71a8741730bce1eaa6da5ea43bb8 *INDEX
-ba0f680ab4b249c59a147dd6c3eeaefa *NAMESPACE
+29af646f8b6f6e624fd71940c2327a8d *NAMESPACE
 514647c11679bce81a8f1e0b29978087 *R/data.R
 b31e2c35d784d24f9b9dcc6a6583eefe *R/disc.R
-fa050aa69219c87423d42493b1be7cf2 *R/gd.R
+32d42ecba836e0673b0978883007e0e5 *R/gd.R
 6b7d8169e03b94f193f979615165c082 *R/gdeco.R
 fa6d40806b70c4e2023d332a192d1c8f *R/gdinteract.R
 cc643a5359a51f3c1da138db02b8e2e5 *R/gdm.R
@@ -12,7 +12,7 @@ cc643a5359a51f3c1da138db02b8e2e5 *R/gdm.R
 958530a1cb3243cd0be93d81881f97d1 *R/riskmean.R
 b1f879bff82632a86e2766a0bf92d5cf *R/sesu.R
 dd5cd4083e3e12521090be97bc0f576d *R/v2m.R
-56ec7038ff919d4ad4d7a97cd1bf4484 *R/zzz.R
+3b1a6cfe039ed402e05e49ade24905a0 *R/zzz.R
 9cc218fc25df09bbed7fcafed10cffe7 *build/vignette.rds
 5982f02472172c6e5fad08be626ef012 *data/h1n1_100.rda
 2cc2ca02b9774cc13da11d135ce04051 *data/h1n1_150.rda
@@ -25,8 +25,8 @@ ddd2c8a85039c053e728067f202b2839 *data/ndvi_40.rda
 5afe71b62eacb4e05784a352898fb1a8 *data/ndvi_50.rda
 06bea5bb3edc1dad85193a7948a43079 *inst/CITATION
 5044676a42ff13003f612a5098f4a2f9 *inst/doc/GD.R
-6b68f091d72f61335a52d8898960a7a1 *inst/doc/GD.Rmd
-69093e20cfe8a3c5d15af4f4a4b7c846 *inst/doc/GD.html
+fffbd0554c49ff66e2a8fc5ca05a0d19 *inst/doc/GD.Rmd
+ab3f923fcae1b2b228aecb196de7552d *inst/doc/GD.html
 e314cdbf2d4a634f23f32d9385efec36 *man/H1N1.Rd
 e3339051b108e9867604776f45ad5d85 *man/NDVI.Rd
 4736406958ee2bdb650e6888757c3cd3 *man/disc.Rd
@@ -39,7 +39,7 @@ d326a87d1fc84d61ea762b2dba760997 *man/optidisc.Rd
 a93a2efec3cfeb6863c686f262047b21 *man/riskmean.Rd
 beaa011601df7991b2e8fcb6db3d2470 *man/sesu.Rd
 7232b6c7265ad21a47ccac8db7e94661 *man/v2m.Rd
-6b68f091d72f61335a52d8898960a7a1 *vignettes/GD.Rmd
+fffbd0554c49ff66e2a8fc5ca05a0d19 *vignettes/GD.Rmd
 cf38abe1dd3a7112c972843ae4b66abe *vignettes/fig/Figure1.png
 3c6cc85eafc25b6d6cbe0c8dcf16eabb *vignettes/fig/Figure2.png
 22f5db01f29e7d36403aecf30cb83f57 *vignettes/fig/Figure3.png

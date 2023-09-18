@@ -23,7 +23,7 @@ knitr::opts_chunk$set(echo = TRUE, fig.path = 'figs/')
 &nbsp; 
 
 
-`Current version: GD v10.2`
+`Current version: GD v10.3`
 
 
 &nbsp; 

@@ -106,7 +106,7 @@ plot.gd <- function(x, sig = TRUE, ...){
 
   nchar.names <- max(nchar(as.character(rs2$variable)))
   par(mar = c(5.1, 3.1 + nchar.names/4, 2.1, 2.1))
-  p1 <- barplot(height = rev(vec), names = names(vec),
+  p1 <- barplot(height = rev(vec), names = rev(names(vec)),
                 horiz = TRUE, col = rev(vec.col), xlim = c(0, min(max(vec)*1.1, 1)),
                 xlab = "Q value", las = 1)
   vec.lable <- round(vec, digits = 4)
