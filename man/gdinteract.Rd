@@ -21,8 +21,7 @@ gdinteract(formula, data = NULL)
 }
 \description{
 Function for interaction detector calculation and visualization.
-The types of interactions
-include "Enhance, nonlinear", "Independent", "Enhance, bi-",
+The types of interactions include "Enhance, nonlinear", "Independent", "Enhance, bi-",
 "Weaken, uni-" and "Weaken, nonlinear".
 }
 \examples{

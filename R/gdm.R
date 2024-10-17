@@ -17,8 +17,6 @@
 #' @param x A list of \code{gdm} result
 #' @param ... Ignore
 #'
-#' @importFrom grid grid.newpage pushViewport viewport grid.layout
-#'
 #' @examples
 #' ###############
 #' ## NDVI: ndvi_40
@@ -52,9 +50,9 @@
 #' }
 #'
 #' @export
-
+#'
 gdm <- function(formula, continuous_variable = NULL, data = NULL, discmethod, discitv){
-  formula <- as.formula(formula)
+  formula <- stats::as.formula(formula)
   formula.vars <- all.vars(formula)
   response <- data[, formula.vars[1], drop = FALSE]
   if (formula.vars[2] == "."){
@@ -116,6 +114,7 @@ gdm <- function(formula, continuous_variable = NULL, data = NULL, discmethod, di
   result
 }
 
+#' @export
 print.gdm <- function(x, ...){
   ### print optimal discretization
   if (length(x$Discretization)==0){
@@ -139,6 +138,7 @@ print.gdm <- function(x, ...){
   invisible(x)
 }
 
+#' @export
 plot.gdm <- function(x, ...){
   ### plot optimal discretization
   lrd <- length(x$Discretization)

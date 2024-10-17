@@ -30,9 +30,6 @@ This dataset consists of H1N1 incidences and potential variables sampled from fo
 spatial grid units, including 10 km, 20 km, 50 km and 100 km.
 The references of more details and data sources will be added.
 }
-\author{
-Yongze Song \email{yongze.song@postgrad.curtin.edu.au}
-}
 \keyword{H1N1}
 \keyword{dataset}
 \keyword{datasets}

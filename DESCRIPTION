@@ -1,35 +1,43 @@
 Package: GD
-Type: Package
 Title: Geographical Detectors for Assessing Spatial Factors
-Date: 2023-09-20
-Version: 10.3
-Authors@R: person("Yongze Song", email = "yongze.song@outlook.com",
-                  comment = c(ORCID = "0000-0003-3420-9622"),
-                  role = c("aut", "cre"))
-Maintainer: Yongze Song <yongze.song@outlook.com>
+Version: 10.5
+Authors@R: 
+    c(
+      person(given = "Yongze", family = "Song",
+             email = "yongze.song@outlook.com", 
+             role = c("aut", "cph"),
+             comment = c(ORCID = "0000-0003-3420-9622")),
+      person(given = "Wenbo", family = "Lv",
+             email = "lyu.geosocial@gmail.com", 
+             role = c("aut", "cre"),
+             comment = c(ORCID = "0009-0002-6003-3800"))
+     )
 Description: Geographical detectors for measuring spatial stratified heterogeneity,
              as described in Jinfeng Wang (2010) <doi:10.1080/13658810802443457> and 
              Jinfeng Wang (2016) <doi:10.1016/j.ecolind.2016.02.052>. Includes the
              optimal discretization of continuous data, four primary functions of 
              geographical detectors, comparison of size effects of spatial unit and 
-             the visualizations of results. 
-             To use the package and to refer the 
+             the visualizations of results. To use the package and to refer the 
              descriptions of the package, methods and case datasets, please cite 
-             Yongze Song (2020) <doi:10.1080/15481603.2020.1760434>.
-             The model has been applied in factor exploration of road performance and 
-             multi-scale spatial segmentation for network data, as described in 
+             Yongze Song (2020) <doi:10.1080/15481603.2020.1760434>. The model has 
+             been applied in factor exploration of road performance and multi-scale 
+             spatial segmentation for network data, as described in 
              Yongze Song (2018) <doi:10.3390/rs10111696> and 
              Yongze Song (2020) <doi:10.1109/TITS.2020.3001193>, respectively. 
-Imports: stats, utils, graphics, BAMMtools
-Depends: R (>= 4.3)
-License: GPL-2
-RoxygenNote: 7.2.3
-LazyData: true
-Suggests: knitr, rmarkdown
-VignetteBuilder: knitr
+License: GPL-3
 Encoding: UTF-8
+RoxygenNote: 7.3.2
+URL: https://github.com/ausgis/GD, https://ausgis.github.io/GD/
+BugReports: https://github.com/ausgis/GD/issues
+Depends: R (>= 4.1.0)
+Imports: BAMMtools, graphics, stats, utils
+Suggests: knitr, rmarkdown
+LazyData: true
+VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2023-08-22 13:11:46 UTC; 268222h
-Author: Yongze Song [aut, cre] (<https://orcid.org/0000-0003-3420-9622>)
+Packaged: 2024-10-17 15:47:27 UTC; dell
+Author: Yongze Song [aut, cph] (<https://orcid.org/0000-0003-3420-9622>),
+  Wenbo Lv [aut, cre] (<https://orcid.org/0009-0002-6003-3800>)
+Maintainer: Wenbo Lv <lyu.geosocial@gmail.com>
 Repository: CRAN
-Date/Publication: 2023-09-18 05:42:33 UTC
+Date/Publication: 2024-10-17 16:40:02 UTC

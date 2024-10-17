@@ -47,9 +47,6 @@ This dataset consists of NDVI change and potential variables sampled from six si
 spatial grid units, including 5 km, 10 km, 20 km, 30 km, 40 km and 50 km.
 The references of more details and data sources will be added.
 }
-\author{
-Yongze Song \email{yongze.song@postgrad.curtin.edu.au}
-}
 \keyword{NDVI}
 \keyword{dataset}
 \keyword{datasets}

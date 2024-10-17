@@ -4,22 +4,10 @@
 #' different outputs, including discretization intervals, numbers of values
 #' within intervals, and visualization of discretization.
 #'
-#' @usage disc(var, n, method = "quantile", ManualItv)
-#' \method{print}{disc}(x, ...)
-#' \method{plot}{disc}(x, ...)
-#'
-#' @aliases disc print.disc plot.disc
-#'
 #' @param var A numeric vector of continuous variable
 #' @param n The numeber of intervals
 #' @param method A character of discretization method
 #' @param ManualItv A numeric vector of manual intervals
-#' @param x A list of \code{disc} result
-#' @param ... Ignore
-#'
-#' @importFrom stats na.omit quantile sd runif
-#' @importFrom graphics hist abline
-#' @importFrom BAMMtools getJenksBreaks
 #'
 #' @examples
 #' ## method is default (quantile); number of intervals is 4
@@ -38,7 +26,7 @@ disc <- function(var, n, method = "quantile", ManualItv){
     stop("var is not numeric")
   if (any(is.na(var))) {
     warning("var has missing values, omitted in finding classes")
-    var <- c(na.omit(var))
+    var <- c(stats::na.omit(var))
   }
 
   MethodEqual <- function(var, n){
@@ -46,17 +34,17 @@ disc <- function(var, n, method = "quantile", ManualItv){
   }
 
   MethodNatural <- function(var, n){ # debug: increase speed
-    getJenksBreaks(var, n+1)
+    BAMMtools::getJenksBreaks(var, n+1)
   }
 
   MethodQuantile <- function(var, n){
-    itv <- quantile(var, probs = seq(0, 1, length = n + 1))
+    itv <- stats::quantile(var, probs = seq(0, 1, length = n + 1))
     l0 <- length(unique(itv))
     if (l0 < n + 1){
       l1 <- l0
       l2 <- l0
       while(l2 < n + 1){
-        itv1 <- quantile(var, probs = seq(0, 1, length = l1 + 1))
+        itv1 <- stats::quantile(var, probs = seq(0, 1, length = l1 + 1))
         l2 <- length(unique(itv1))
         l1 <- l1 + 1
       }
@@ -101,11 +89,11 @@ disc <- function(var, n, method = "quantile", ManualItv){
       seqb <- (m-1) - seqa
       seqb <- seqb[which(seqb >= 0)]
       if (m <= 7) {
-        itvb1 <- mean(var) - seqb/2 * sd(var)
-        itvb2 <- mean(var) + seqb/2 * sd(var)
+        itvb1 <- mean(var) - seqb/2 * stats::sd(var)
+        itvb2 <- mean(var) + seqb/2 * stats::sd(var)
       } else {
-        itvb1 <- mean(var) - seqb/4 * sd(var)
-        itvb2 <- mean(var) + seqb/4 * sd(var)
+        itvb1 <- mean(var) - seqb/4 * stats::sd(var)
+        itvb2 <- mean(var) + seqb/4 * stats::sd(var)
       }
       itvb1 <- rev(itvb1)
       itvb1 <- itvb1[which(itvb1 > min(var))]
@@ -144,16 +132,18 @@ disc <- function(var, n, method = "quantile", ManualItv){
   disc.list
 }
 
+#' @export
 print.disc <- function(x, ...){
   cat("Intervals:\n", x$itv)
   invisible(x)
 }
 
+#' @export
 plot.disc <- function(x, ...){
   var <- x$var
   # debug: use basic plot functions for histogram
-  hist(var, 30, col = "gray", border = "gray", main = NULL, xlab = "Variable", las = 1)
-  abline(v = x$itv, col = "red")
-  box()
+  graphics::hist(var, 30, col = "gray", border = "gray", main = NULL, xlab = "Variable", las = 1)
+  graphics::abline(v = x$itv, col = "red")
+  graphics::box()
 }
 
