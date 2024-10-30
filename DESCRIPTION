@@ -1,6 +1,6 @@
 Package: GD
 Title: Geographical Detectors for Assessing Spatial Factors
-Version: 10.5
+Version: 10.6
 Authors@R: 
     c(
       person(given = "Yongze", family = "Song",
@@ -31,13 +31,13 @@ URL: https://github.com/ausgis/GD, https://ausgis.github.io/GD/
 BugReports: https://github.com/ausgis/GD/issues
 Depends: R (>= 4.1.0)
 Imports: BAMMtools, graphics, stats, utils
-Suggests: knitr, rmarkdown
+Suggests: gdverse, knitr, rmarkdown
 LazyData: true
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2024-10-17 15:47:27 UTC; dell
+Packaged: 2024-10-30 12:25:08 UTC; dell
 Author: Yongze Song [aut, cph] (<https://orcid.org/0000-0003-3420-9622>),
   Wenbo Lv [aut, cre] (<https://orcid.org/0009-0002-6003-3800>)
 Maintainer: Wenbo Lv <lyu.geosocial@gmail.com>
 Repository: CRAN
-Date/Publication: 2024-10-17 16:40:02 UTC
+Date/Publication: 2024-10-30 13:50:02 UTC

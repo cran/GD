@@ -11,7 +11,7 @@
 
 <meta name="author" content="Yongze Song" />
 
-<meta name="date" content="2024-10-17" />
+<meta name="date" content="2024-10-30" />
 
 <title>Optimal Parameters-based Geographical Detectors (OPGD) Model for Spatial Heterogeneity Analysis and Factor Exploration</title>
 
@@ -1489,7 +1489,7 @@ font-size: 0.95em;
 Detectors (OPGD) Model for Spatial Heterogeneity Analysis and Factor
 Exploration</h1>
 <h4 class="author">Yongze Song</h4>
-<h4 class="date">2024-10-17</h4>
+<h4 class="date">2024-10-30</h4>
 
 </div>
 
@@ -1647,6 +1647,9 @@ values.</td>
 </tr>
 </tbody>
 </table>
+<p>These methods are well supported in the <a href="https://CRAN.R-project.org/package=gdverse">gdverse</a> package,
+and we welcome you to use the <a href="https://CRAN.R-project.org/package=gdverse">gdverse</a> package we
+developed.</p>
 <p> </p>
 </div>
 </div>
@@ -1693,11 +1696,13 @@ parameter combinations. Dataset <code>ndvi_40</code> is used as an
 example for explanation.</p>
 <pre class="r"><code>install.packages(&quot;GD&quot;)</code></pre>
 <pre class="r"><code>library(&quot;GD&quot;)</code></pre>
-<pre><code>## This is GD 10.5.
+<pre><code>## This is GD 10.6.
 ##                         
 ## To cite GD in publications, please use:
 ##                         
 ## Song, Y., Wang, J., Ge, Y. &amp; Xu, C. (2020) An optimal parameters-based geographical detector model enhances geographic characteristics of explanatory variables for spatial heterogeneity analysis: Cases with different types of spatial data, GIScience &amp; Remote Sensing, 57(5), 593-610. doi: 10.1080/15481603.2020.1760434.
+##                         
+## If you find that GD runs for a long time without returning results, please try using the gdverse package we developed.
 ## </code></pre>
 <pre class="r"><code>data(&quot;ndvi_40&quot;)
 head(ndvi_40)[1:3,]</code></pre>
